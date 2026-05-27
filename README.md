@@ -64,36 +64,49 @@ Key advantages:
 
 ### 1. Install JavisDiT
 
-Follow the [JavisDiT installation guide](https://github.com/JavisVerse/JavisDiT) first.
-
-Then clone this ITS repository:
+Clone this ITS repository:
 
 ```bash
 git clone https://github.com/JavisDiT/JavisDiT-ITS.git
 cd JavisDiT-ITS
 ```
 
-<details>
-<summary><b>Inference-only environment setup</b></summary>
+Follow the [JavisDiT installation guide](https://github.com/JavisVerse/JavisDiT) first.
 
-If you only need inference (not training), install minimal dependencies:
+For CUDA 12.1, you can install the dependencies with the following commands.
 
 ```bash
-# PyTorch with CUDA 12.1
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# create a virtual env and activate (conda as an example)
+conda create -n javisdit_its python=3.10
+conda activate javisdit_its
 
-# Core inference dependencies
+# download the repo
+git clone https://github.com/JavisVerse/JavisDiT
+cd JavisDiT
+
+# install torch, torchvision and xformers
 pip install -r requirements/requirements-cu121.txt
 
-# Optional: for faster generation
-pip install flash-attn --no-build-isolation
-```
+# install ffpmeg
+conda install -c conda-forge ffmpeg -y
 
-</details>
+# the default installation is for inference only
+pip install -v .
+# for development mode, `pip install -v -e .`
+# to skip dependencies, `pip install -v -e . --no-deps`
+pip install flash-attn --no-build-isolation
+
+# replace
+PYTHON_SITE_PACKAGES=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+cp assets/src/pytorchvideo_augmentations.py ${PYTHON_SITE_PACKAGES}/pytorchvideo/transforms/augmentations.py
+cp assets/src/funasr_utils_load_utils.py ${PYTHON_SITE_PACKAGES}/funasr/utils/load_utils.py
+```
 
 ### 2. Reward Server Environment Setup
 
-The reward server requires additional dependencies for inference time scaling (BON or EvoSearch). Install on top of Step 1:
+The reward server requires additional dependencies for inference time scaling (BON or EvoSearch). 
+
+**Option A: Install on top of Step 1**
 
 ```bash
 # Install evaluation dependencies
@@ -113,7 +126,7 @@ pip install transformers[audio]>=4.33.0
 
 > **Note:** PyTorch (torch, torchvision, torchaudio) is already installed from Step 1. Do not reinstall.
 
-**Option: Separate environment for reward server**
+**Option B: Separate environment for reward server (recommended)**
 
 If you prefer to run the reward server in a separate GPU with isolated environment:
 
