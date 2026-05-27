@@ -6,9 +6,7 @@
 
 <sup>1</sup> KAIST, <sup>2</sup> Luma AI
 
-[[`Paper`](https://openreview.net/forum?id=MHNFjjm5nO)] 
-[[`Project Page`](https://openreview.net/forum?id=MHNFjjm5nO)]
-[[`Open Review`](https://openreview.net/forum?id=MHNFjjm5nO)]
+[📄 Paper](https://openreview.net/forum?id=MHNFjjm5nO) | [🌐 Project Page](https://openreview.net/forum?id=MHNFjjm5nO) | [📑 Open Review](https://openreview.net/forum?id=MHNFjjm5nO)
 
 </div>
 
@@ -43,14 +41,17 @@ Key advantages:
 
 ### 🎬 Supported Joint Audio-Video Generation Models
 
-1. **[JavisDiT](https://github.com/JavisVerse/JavisDiT)** — Joint Audio-Video Diffusion Transformer
+1. **[JavisDiT-ITS](https://github.com/JavisVerse/JavisDiT)** ⭐ — Joint Audio-Video Diffusion Transformer
    - Synchronized audio-video generation with spatio-temporal priors
 
-2. **LTX-2** ⭐ **— Most powerful audio-video generation model**
+2. **[LTX2-ITS](https://github.com/kaistmm/ITS-AVGen-LTX2)** **— Most powerful audio-video generation model**
    - State-of-the-art quality and synchronization
    - Recommended for best results
+   - Production-ready outputs with multiple resolution modes
+   - **Currently implemented:** BON (Best-of-N)
+   - **Coming soon:** EvoSearch (Evolutionary Search)
 
-3. **[MMDisCo](https://github.com/SonyResearch/MMDisCo)** — Cooperative Diffusion for Joint Audio-Video Generation (TBD)
+3. **[MMDisCo-ITS](https://github.com/SonyResearch/MMDisCo)** — Cooperative Diffusion for Joint Audio-Video Generation (TBD)
    - Discriminator-guided multimodal generation
    - *Code will be released soon*
 
