@@ -233,7 +233,6 @@ def save_sample(x, save_path=None, fps=8, normalize=True, value_range=(-1, 1), f
         audio (Tensor): shape [Ta]
     """
     assert x.ndim == 4
-
     if not force_video and x.shape[1] == 1:  # T = 1: save as image
         save_path += ".png"
         x = x.squeeze(1)

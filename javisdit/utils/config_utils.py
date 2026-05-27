@@ -74,6 +74,10 @@ def parse_args(training=False):
         parser.add_argument("--aes", default=None, type=float, help="aesthetic score")
         parser.add_argument("--flow", default=None, type=float, help="flow score")
         parser.add_argument("--camera-motion", default=None, type=str, help="camera motion")
+        
+        # multi-GPU sharding
+        parser.add_argument("--nshard", default=1, type=int, help="total number of shards for distributed inference")
+        parser.add_argument("--shard-id", default=0, type=int, help="current shard id (0-indexed)")
     # ======================================================
     # Training
     # ======================================================

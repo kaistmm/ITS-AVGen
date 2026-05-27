@@ -20,63 +20,64 @@ spatial_token_num = 32
 temporal_token_num = 32
 st_prior_channel = 128
 
-# === Inference Time Scaling (ITS) Configuration for BON ===
-# BON (Best-of-N): Generate N samples and select the best one
-# evolution_schedule=[51] means evaluation happens at the last step (after full generation)
+# === Inference Time Scaling (ITS) Configuration for EvoSearch ===
+# EvoSearch: Evolutionary search that refines samples through multiple generations
+# evolution_schedule=[0, 10] means evolution at step 0 and step 10 of 30 total denoising steps
 
 evosearch = dict(
-  # When to perform evaluation: [51] = only at the end (Best-of-N strategy)
-  evolution_schedule=[51],
+  # When to evolve: [0, 10] = evolve at denoising steps 0 and 10 (out of 30 total)
+  # Step 0: Initial generation with diversity
+  # Step 10: Refinement after early denoising
+  evolution_schedule=[0, 10],
 
-  # How many candidates to generate: [5, 5] = generate 5 samples
-  population_size_schedule=[5, 5],
+  # Population per generation: 5 candidates in each of 3 generations
+  population_size_schedule=[5, 5, 5],
 
-  # Process samples sequentially to save memory (vs parallel generation)
+  # Process samples sequentially to save memory
   sequential_processing=True,
 
   # Don't use online guidance during generation
   guidance_reward="VideoReward",
 
-  # Which reward models to use for evaluation
+  # Reward models for evaluating candidates
   stage_verifiers=[
-    ["VideoReward", "JavisScore"],  # Stage 1: Video quality + Audio-video sync
-    ["VideoReward", "JavisScore"],
-    ["VideoReward", "JavisScore"],
+    ["VideoReward", "JavisScore"],  # Gen 1: evaluate quality and sync
+    ["VideoReward", "JavisScore"],  # Gen 2: evaluate quality and sync
+    ["VideoReward", "JavisScore"],  # Gen 3: final evaluation
   ],
 
-  # Combine multiple verifiers with equal weight
+  # Combine verifiers with equal weight
   stage_weights=[
     [0.5, 0.5],
     [0.5, 0.5],
     [0.5, 0.5],
   ],
 
-  iterations=1,
-  mutation_rate=0.2,
+  # Keep top 2 performers for next generation
   elite_size=2,
+
+  iterations=1,
+
+  # Mutation: add Gaussian noise to latents of selected candidates (σ = 0.2)
+  mutation_rate=0.2,
+
   vqa_weight=1.0,
   align_weight=0.0,
+
+  # Tournament selection: higher ratio = stronger selection pressure
   tournament_ratio=0.5,
 
-  # Score normalization method: zscore_history normalizes based on historical data
-  score_method="zscore_history",
+  # Adaptive: learn optimal weight combining multiple verifiers (ARW loss)
+  # Alternative: zscore_history, zscore, rank, weighted, minmax
+  score_method="adaptive",
   javis_boost=0.5,
 
-  # Statistics for z-score normalization (empirically measured on validation set)
+  # Statistics for z-score normalization
   VQ_mean=-0.4779,
   VQ_std=0.8785,
   JS_mean=0.1613,
   JS_std=0.1033,
 )
-
-adaptive_convergence = dict(
-  enabled=True,
-  online_prefix="arw_online",
-  online_step_prefix="arw_online_step",
-  checkpoint_name="adaptive_reward_weighter.pt",
-)
-
-adaptive_optimizer = "Adam"  # Adam, AdamW, RMSprop, SGD, Adagrad, LBFGS
 
 model = dict(
     type="VASTDiT3-XL/2",

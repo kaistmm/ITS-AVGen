@@ -6,7 +6,7 @@ audio_fps = 16000
 frame_interval = 1
 save_fps = 24
 
-save_dir = "./samples/samples_720/"
+# save_dir = "./samples/samples_240/MovieGen/test01_baseline"
 seed = 42
 batch_size = 1
 multi_resolution = "OpenSora"
@@ -27,7 +27,7 @@ fix_audio_seed = False
 model = dict(
     type="VASTDiT3-XL/2",
     weight_init_from=[],
-    from_pretrained="./checkpoints/JavisDiT-v0.1-jav",
+    from_pretrained="./checkpoints/JavisDiT-v0.1-jav-240p4s",
     qk_norm=True,
     enable_flash_attn=True,
     enable_layernorm_kernel=False,

@@ -6,9 +6,9 @@ audio_fps = 16000
 frame_interval = 1
 save_fps = 24
 
-save_dir = "./samples/samples_720/"
+save_dir = "./samples/samples_240/VGGSound/test"
 seed = 42
-batch_size = 1
+batch_size = 1 #for prompt
 multi_resolution = "OpenSora"
 dtype = "bf16"
 loop = 1  # loop for video extension
@@ -20,14 +20,22 @@ spatial_token_num = 32
 temporal_token_num = 32
 st_prior_channel = 128
 
-# inference test
-fix_video_seed = False
-fix_audio_seed = False
+# === Standard Inference (No ITS) ===
+# No inference time scaling - just pure generation
+
+adaptive_convergence = dict(
+  enabled=True,
+  online_prefix="arw_online",
+  online_step_prefix="arw_online_step",
+  checkpoint_name="adaptive_reward_weighter.pt",
+)
+
+adaptive_optimizer = "Adam"  # Adam, AdamW, RMSprop, SGD, Adagrad, LBFGS
 
 model = dict(
     type="VASTDiT3-XL/2",
     weight_init_from=[],
-    from_pretrained="./checkpoints/JavisDiT-v0.1-jav",
+    from_pretrained="./checkpoints/JavisDiT-v0.1-jav-240p4s",
     qk_norm=True,
     enable_flash_attn=True,
     enable_layernorm_kernel=False,
@@ -80,3 +88,15 @@ scheduler = dict(
 
 aes = 6.5    # aesthetic score
 flow = None  # motion score
+
+
+correct = dict(
+  vqa_server_addr=5001, # check here!!! (default: 5000)
+  corrector="particle",
+  reward_weight=0.5,
+  reward_score="VideoReward",
+  vqa_model="clip-flant5-xxl",
+  vqa_batch_size=1,
+  vqa_device=1,
+  align_weight=0.5,
+)

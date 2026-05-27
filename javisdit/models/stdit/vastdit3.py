@@ -107,12 +107,17 @@ class CrossSTDiT3Block(nn.Module):
             x_m_zero = t2i_modulate(self.norm1s(x), shift_mca_s_zero, scale_mca_s_zero)
             x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
 
+        if isinstance(mask, tuple):
+            mask_s, mask_t = mask
+        else:
+            mask_s, mask_t = mask, mask
+
         # spatial attention
         x_m = rearrange(x_m, "B (T S) C -> (B T) S C", T=T, S=S)
         # prior: shape(B, S', C) -> shape(B*T, S', C) 
         spatial_prior = spatial_prior.unsqueeze(1).repeat(1, T, 1, 1).flatten(0,1)
         assert spatial_prior.shape[0] == x_m.shape[0] and spatial_prior.shape[-1] == x_m.shape[-1]
-        x_m = self.spatial_cross_attn(x_m, spatial_prior, mask, return_attn_map=return_attn_map)
+        x_m = self.spatial_cross_attn(x_m, spatial_prior, mask_s, return_attn_map=return_attn_map)
         if return_attn_map:
             x_m, spatial_attn = x_m
         x_m = rearrange(x_m, "(B T) S C -> B (T S) C", T=T, S=S)
@@ -137,7 +142,7 @@ class CrossSTDiT3Block(nn.Module):
         # prior: shape(B, T', C) -> shape(B*S, T', C) 
         temporal_prior = temporal_prior.unsqueeze(1).repeat(1, S, 1, 1).flatten(0,1)
         assert temporal_prior.shape[0] == x_m.shape[0] and temporal_prior.shape[-1] == x_m.shape[-1]
-        x_m = self.temporal_cross_attn(x_m, temporal_prior, mask, return_attn_map=return_attn_map)
+        x_m = self.temporal_cross_attn(x_m, temporal_prior, mask_t, return_attn_map=return_attn_map)
         if return_attn_map:
             x_m, temporal_attn = x_m
         x_m = rearrange(x_m, "(B S) T C -> B (T S) C", T=T, S=S)
@@ -618,6 +623,24 @@ class VASTDiT3(STDiT3):
 
         # === blocks ===
         return_attn_map = kwargs.get('return_attn_map', False)
+        #######################################################
+        # TODO: FIXED (batch)
+        # 1. Video-Prior Masks (using Length Lists for xformers BlockDiagonalMask)
+        # Spatial Prior: video tokens = (B * T, S, C), prior tokens = (B * T, S_prior, C)
+        # Batch Size here is effectively B*T.
+        v_prior_s_lens = [self.config.spatial_prior_len] * (B * T)
+        
+        # Temporal Prior: video tokens = (B * S, T, C), prior tokens = (B * S, T_prior, C)
+        v_prior_t_lens = [self.config.temporal_prior_len] * (B * S)
+
+        # 2. Audio-Prior Masks
+        # Spatial Prior (Audio): audio tokens = (B * R, M, C), prior tokens = (B * R, S_prior, C)
+        a_prior_s_lens = [self.config.spatial_prior_len] * (B * R)
+
+        # Temporal Prior (Audio): audio tokens = (B * M, R, C), prior tokens = (B * M, T_prior, C)
+        a_prior_t_lens = [self.config.temporal_prior_len] * (B * M)
+        #######################################################
+
         def _parse_attn_map(attn_map: torch.Tensor):
             attn_map = attn_map[:attn_map.shape[0]//2]  # CFG
             attn_map = attn_map.softmax(dim=-2).mean(dim=(1,3))  # average #head and #prior
@@ -635,14 +658,14 @@ class VASTDiT3(STDiT3):
             ax = auto_grad_checkpoint(a_t_blk, ax, ay, t_mlp, ay_lens, ax_mask, t0_mlp, R, M)
             # video-prior spatio-temporal cross-attention
             vx = auto_grad_checkpoint(v_p_st_blk, vx, spatial_prior, temporal_prior, \
-                                      t_st_mlp, None, x_mask, t0_st_mlp, T, S, return_attn_map=return_attn_map)
+                                      t_st_mlp, (v_prior_s_lens, v_prior_t_lens), x_mask, t0_st_mlp, T, S, return_attn_map=return_attn_map)
             if return_attn_map:
                 vx, v_s_attn, v_t_attn = vx
                 attn_maps[f'block{i}_video_spatial'] = _parse_attn_map(v_s_attn)
                 attn_maps[f'block{i}_video_temporal'] = _parse_attn_map(v_t_attn)
             # audio-prior spatio-temporal cross-attention
             ax = auto_grad_checkpoint(a_p_st_blk, ax, spatial_prior, temporal_prior, \
-                                      t_st_mlp, None, ax_mask, t0_st_mlp, R, M, return_attn_map=return_attn_map)
+                                      t_st_mlp, (a_prior_s_lens, a_prior_t_lens), ax_mask, t0_st_mlp, R, M, return_attn_map=return_attn_map)
             if return_attn_map:
                 ax, a_s_attn, a_t_attn = ax
                 attn_maps[f'block{i}_audio_spatial'] = _parse_attn_map(a_s_attn)

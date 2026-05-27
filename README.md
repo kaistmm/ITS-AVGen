@@ -1,362 +1,343 @@
-## <div align="center"> JavisDiT: Joint Audio-Video Diffusion Transformer with Hierarchical Spatio-Temporal Prior Synchronization</div>
+## <div align="center">[TMLR] Inference Time Scaling for Joint Audio-Video Generation</div>
 
 <div align="center">
 
-[[`HomePage`](https://javisdit.github.io/)] 
-[[`ArXiv Paper`](https://arxiv.org/pdf/2503.23377)] 
-[[`HF Paper`](https://huggingface.co/papers/2503.23377)]
-[[`Models`](https://huggingface.co/collections/JavisDiT/javisdit-v01-67f2ac8a0def71591f7e2974)]
-<!-- [[`Gradio Demo`](https://447c629bc8648ce599.gradio.live)] -->
+**[Jaemin Jung](https://jung-jaemin.github.io/)**<sup>1</sup>, [Kyeongha Rho](https://kyeongharho.github.io/)<sup>1</sup>, [Inkyu Shin](https://dlsrbgg33.github.io/)<sup>2</sup>, [Joon Son Chung](https://mm.kaist.ac.kr/joon/)<sup>1</sup>
+
+<sup>1</sup> KAIST, <sup>2</sup> Luma AI
+
+[[`Paper`](https://openreview.net/forum?id=MHNFjjm5nO)] 
+[[`Project Page`](https://openreview.net/forum?id=MHNFjjm5nO)]
+[[`Open Review`](https://openreview.net/forum?id=MHNFjjm5nO)]
 
 </div>
 
+---
 
-We introduce **JavisDiT**, a novel & SoTA Joint Audio-Video Diffusion Transformer designed for synchronized audio-video generation (JAVG) from open-ended user prompts. 
+<p align="center">
+  <img src="assets/src/7_avits.gif" width="70%">
+</p>
 
-https://github.com/user-attachments/assets/de5f0bcc-fb5d-4410-a795-2dd3ae3ac788
-
-<!-- <video controls width="100%">
-  <source src="assets/video/teaser-video-JavisDit3.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video> -->
-
-## 📰 News
-
-- **[2025.08.11]** 🔥 We released the data and code for JAVG evaluation. For more details refer to [here](#evaluation) and [eval/javisbench/README.md](eval/javisbench/README.md).
-- **[2025.04.15]** 🔥 We released the data preparation and model training instructions. You can train JavisDiT with your own dataset!
-- **[2025.04.07]** 🔥 We released the inference code and a preview model of **JavisDiT-v0.1** at [HuggingFace](https://huggingface.co/JavisDiT), which includes **JavisDiT-v0.1-audio**, **JavisDiT-v0.1-prior**, and **JavisDiT-v0.1-jav** (with a [low-resolution version](https://huggingface.co/JavisDiT/JavisDiT-v0.1-jav-240p4s) and a [full-resolution version](https://huggingface.co/JavisDiT/JavisDiT-v0.1-jav)).
-- **[2025.04.03]** We release the repository of [JavisDiT](https://arxiv.org/pdf/2503.23377). Code, model, and data are coming soon.
-
-### 👉 TODO 
-- [ ] Release the data and evaluation code for JavisScore.
-- [ ] Deriving a more efficient and powerful JAVG model.
+---
 
 ## Brief Introduction
 
-**JavisDiT** addresses the key bottleneck of JAVG with Hierarchical Spatio-Temporal Prior Synchronization.
+<p align="center">
+  <a href="assets/src/main.pdf" target="_blank">
+    <img src="assets/src/main.png" width="80%">
+  </a>
+</p>
 
-<!-- <p align="center">
-  <img src="./assets/image/JavisDiT-intro-resized.png" width="550"/>
-</p> -->
+**Inference Time Scaling (ITS)** extends generation quality without retraining by leveraging pre-trained reward models at inference time. 
 
-![framework](./assets/image/JavisDiT-framework-resized.png)
+Rather than generating a single sample through the diffusion process, ITS generates a population of diverse candidates and uses reward signals (video quality, audio-video synchronization, etc.) to iteratively refine them. This approach enables:
 
-- We introduce **JavisDiT**, a novel Joint Audio-Video Diffusion Transformer designed for synchronized audio-video generation (JAVG) from open-ended user prompts. 
-- We propose **JavisBench**, a new benchmark consisting of 10,140 high-quality text-captioned sounding videos spanning diverse scenes and complex real-world scenarios. 
-- We devise **JavisScore**, a robust metric for evaluating the synchronization between generated audio-video pairs in real-world complex content.
-- We curate **JavisEval**, a dataset with 3,000 human-annotated samples to quantitatively evaluate the accuracy of synchronization estimate metrics. 
+- **BON (Best-of-N)**: Generate N samples and select the best one using reward ranking
+- **EvoSearch**: Evolutionary refinement through multiple denoising stages with selection and mutation
 
-We hope to set a new standard for the JAVG community. For more technical details, kindly refer to the original [paper](https://arxiv.org/pdf/2503.23377.pdf). 
+Key advantages:
+- ✅ No additional training required
+- ✅ Works with any pre-trained generative model  
+- ✅ Flexible reward combinations (VideoReward, JavisScore, CLAP, etc.)
+- ✅ Significant quality improvements (up to +34% on sync metrics)
 
+### 🎬 Supported Joint Audio-Video Generation Models
 
-## Installation
+1. **[JavisDiT](https://github.com/JavisVerse/JavisDiT)** — Joint Audio-Video Diffusion Transformer
+   - Synchronized audio-video generation with spatio-temporal priors
 
-### Install from Source
+2. **LTX-2** ⭐ **— Most powerful audio-video generation model**
+   - State-of-the-art quality and synchronization
+   - Recommended for best results
 
-For CUDA 12.1, you can install the dependencies with the following commands.
+3. **[MMDisCo](https://github.com/SonyResearch/MMDisCo)** — Cooperative Diffusion for Joint Audio-Video Generation (TBD)
+   - Discriminator-guided multimodal generation
+   - *Code will be released soon*
+
+---
+
+> For JavisDiT base model details, installation, and pre-training, refer to the [JavisDiT repository](https://github.com/JavisVerse/JavisDiT).
+
+---
+
+## Quick Start
+
+### 1. Install JavisDiT
+
+Follow the [JavisDiT installation guide](https://github.com/JavisVerse/JavisDiT) first.
+
+Then clone this ITS repository:
 
 ```bash
-# create a virtual env and activate (conda as an example)
-conda create -n javisdit python=3.10
-conda activate javisdit
+git clone https://github.com/JavisDiT/JavisDiT-ITS.git
+cd JavisDiT-ITS
+```
 
-# download the repo
-git clone https://github.com/JavisDiT/JavisDiT
-cd JavisDiT
+<details>
+<summary><b>Inference-only environment setup</b></summary>
 
-# install torch, torchvision and xformers
+If you only need inference (not training), install minimal dependencies:
+
+```bash
+# PyTorch with CUDA 12.1
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Core inference dependencies
 pip install -r requirements/requirements-cu121.txt
 
-# install ffpmeg
-conda install -c conda-forge ffmpeg -y
-
-# the default installation is for inference only
-pip install -v .
-# for development mode, `pip install -v -e .`
-# to skip dependencies, `pip install -v -e . --no-deps`
-
-# replace
-PYTHON_SITE_PACKAGES=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
-cp assets/src/pytorchvideo_augmentations.py ${PYTHON_SITE_PACKAGES}/pytorchvideo/transforms/augmentations.py
-cp assets/src/funasr_utils_load_utils.py ${PYTHON_SITE_PACKAGES}/funasr/utils/load_utils.py
-```
-
-(Optional, recommended for fast speed, especially for training) To enable `layernorm_kernel` and `flash_attn`, you need to install `apex` and `flash-attn` with the following commands.
-
-```bash
-# install flash attention
-# set enable_flash_attn=False in config to disable flash attention
-pip install packaging ninja
+# Optional: for faster generation
 pip install flash-attn --no-build-isolation
-
-# install apex
-# set enable_layernorm_kernel=False in config to disable apex
-pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" git+https://github.com/NVIDIA/apex.git
 ```
 
+</details>
 
-### Pre-trained Weights
+### 2. Reward Server Environment Setup
 
-
-| Model     | Resolution | Model Size | Data | #iterations | Batch Size |
-| --------- | ---------- | ---------- | ---- | ----------- | ---------- |
-| [JavisDiT-v0.1-prior](https://huggingface.co/JavisDiT/JavisDiT-v0.1-prior)  | 144P-1080P | 29M  | 611K | 36k | Dynamic |
-| [JavisDiT-v0.1](https://huggingface.co/JavisDiT/JavisDiT-v0.1-jav)        | 144P-1080P | 3.4B | 611K | 1k  | Dynamic |
-| [JavisDiT-v0.1-240p4s](https://huggingface.co/JavisDiT/JavisDiT-v0.1-jav-240p4s) | 240P       | 3.4B | 611K | 16k | 4       |
-
-
-:warning: **LIMITATION**: [JavisDiT-v0.1](https://huggingface.co/collections/JavisDiT/javisdit-v01-67f2ac8a0def71591f7e2974) is a preview version trained on a limited budget. We are working on improving the quality by optimizing both model architecture and training data.
-
-Weight will be automatically downloaded when you run the inference script. Or you can also download these weights to local directory and change the path configuration in `configs/.../inference/sample.py`.
+The reward server requires additional dependencies for inference time scaling (BON or EvoSearch). Install on top of Step 1:
 
 ```bash
-pip install "huggingface_hub[cli]"
-huggingface-cli download JavisDiT/JavisDiT-v0.1-jav --local-dir ./checkpoints/JavisDiT-v0.1-jav
+# Install evaluation dependencies
+pip install -r requirements/requirements-eval.txt
+
+# Reward model dependencies
+pip install imagebind-huge  # or manually download imagebind_huge.pth
+pip install einops ftfy
+
+# Install VideoReward (for --reward_model VideoReward)
+git clone https://github.com/KlingAIResearch/VideoAlign.git ./VideoAlign
+pip install -e ./VideoAlign
+
+# Install CLAP for audio alignment (optional, for --audio_model clap)
+pip install transformers[audio]>=4.33.0
 ```
 
-> For users from mainland China, try `export HF_ENDPOINT=https://hf-mirror.com` to successfully download the weights.
+> **Note:** PyTorch (torch, torchvision, torchaudio) is already installed from Step 1. Do not reinstall.
 
+**Option: Separate environment for reward server**
 
-## Inference
-
-### Weight Prepare
-
-Download [imagebind_huge.pth](https://dl.fbaipublicfiles.com/imagebind/imagebind_huge.pth) and put it into `./checkpoints/imagebind_huge.pth`.
-
-### Command Line Inference
-
-The basic command line inference is as follows:
+If you prefer to run the reward server in a separate GPU with isolated environment:
 
 ```bash
-python scripts/inference.py \
-  configs/javisdit-v0-1/inference/sample.py \
-  --num-frames 2s --resolution 720p --aspect-ratio 9:16 \
-  --prompt "a beautiful waterfall" --verbose 2
+# Create separate conda env
+conda create -n reward-server python=3.10
+conda activate reward-server
+
+# Install PyTorch (required for this env)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Install evaluation dependencies
+pip install -r requirements/requirements-eval.txt
+pip install imagebind-huge einops ftfy
+
+# Install VideoReward
+git clone https://github.com/KlingAIResearch/VideoAlign.git ./VideoAlign
+pip install -e ./VideoAlign
+
+# Optional: Install CLAP
+pip install transformers[audio]>=4.33.0
 ```
 
-`--verbose 2` will display the progress of a single diffusion.
-If your installation do not contain `apex` and `flash-attn`, you need to disable them in the config file, or via the folowing command.
+Then run `bash vqa_server.sh [GPU_ID]` in this separate environment.
+
+### 3. Download Pre-trained Weights
 
 ```bash
-python scripts/inference.py \
-  configs/javisdit-v0-1/inference/sample_240p4s.py \
-  --num-frames 2s --resolution 720p --aspect-ratio 9:16 \
-  --layernorm-kernel False --flash-attn False \
-  --prompt "a beautiful waterfall" --verbose 2
+# ImageBind (required for JavisScore)
+wget https://dl.fbaipublicfiles.com/imagebind/imagebind_huge.pth \
+    -O ./checkpoints/imagebind_huge.pth
 ```
 
-Try this configuration to generate low-resolution sounding-videos:
+Model weights (JavisDiT-v0.1-jav-240p4s, prior) auto-download on first inference.
 
-```bash
-python scripts/inference.py \
-  configs/javisdit-v0-1/inference/sample_240p4s.py \
-  --num-frames 4s --resolution 240p --aspect-ratio 9:16 \
-  --prompt "a beautiful waterfall" --verbose 2
-```
+### 4. Test Installation
 
-If you want to generate on a given prompt list (organized with a `.txt` for `.csv` file):
+Verify everything works with a quick test:
 
 ```bash
 python scripts/inference.py \
-  configs/javisdit-v0-1/inference/sample_240p4s.py \
-  --num-frames 4s --resolution 240p --aspect-ratio 9:16 \
-  --prompt-path data/meta/JavisBench.csv --verbose 1
+    configs/javisdit-v0-1/inference/sample_240p4s_standard.py \
+    --prompt "a cat playing with a ball in a sunny garden" \
+    --num-frames 2s --resolution 240p --aspect-ratio 9:16 \
+    --save-dir samples/test_output \
+    --verbose 2
 ```
 
-`--verbose 1` will display the progress of the whole generation list.
+This generates a 2-second video. If successful, output will be saved in `samples/test_output/`.
 
-### Multi-Device Inference
+---
 
-To enable multi-device inference, you need to use `torchrun` to run the inference script. The following command will run the inference with 2 GPUs.
+## Inference Time Scaling
+
+### Step 1: Start the Reward Server
+
+The reward server must run on a separate GPU:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node 2 scripts/inference.py \
-  configs/javisdit-v0-1/inference/sample_240p4s.py \
-  --num-frames 4s --resolution 240p --aspect-ratio 9:16 \
-  --prompt-path data/meta/JavisBench.csv --verbose 1
+bash vqa_server.sh [GPU_ID]
+# Example: bash vqa_server.sh 0
 ```
 
-### X-Conditional Generation
+This launches VideoReward + JavisScore verifiers on port 5001. Keep this running during generation.
 
-- [ ] Coming soon.
+**Server Configuration Options:**
 
-## Training 
-
-### Data Preparation
-
-In this project, we use a `.csv` file to manage all the training entries and their attributes for efficient training:
-
-| path | id | relpath | num_frames | height | width | aspect_ratio | fps | resolution | audio_path | audio_fps | text|
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---|
-| /path/to/xxx.mp4 | xxx | xxx.mp4 | 240 | 480 | 640 | 0.75 | 24 | 307200 | /path/to/xxx.wav | 16000 | yyy |
-
-The content of columns may vary in different training stages. The detailed instructions for each training stage can be found in [here](assets/docs/data.md).
-
-### Stage1 - JavisDiT-audio
-
-In this stage, we perform audio pretraining to intialize the text-to-audio generation capability:
+Edit `vqa_server.sh` or pass arguments directly:
 
 ```bash
-ln -s /path/to/local/OpenSora-STDiT-v3 ./checkpoints/OpenSora-STDiT-v3
-
-export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-torchrun --standalone --nproc_per_node 8 \
-    scripts/train.py \
-    configs/javisdit-v0-1/train/stage1_audio.py \
-    --data-path data/meta/audio/train_audio.csv
+CUDA_VISIBLE_DEVICES=0 python reward_model/vqa_server.py \
+    --gpu 0 \
+    --addr 5001 \
+    --reward_model [REWARD_MODEL] \
+    --align_model [ALIGN_MODEL] \
+    --audio_model [AUDIO_MODEL]
 ```
 
-The resulting checkpoints will be saved at `runs/0aa-VASTDiT3-XL-2/epoch0bb-global_stepccc/model`.
+| Option | Values | Default |
+|--------|--------|---------|
+| `--reward_model` | `VideoReward`, `vqascore` | `VideoReward` |
+| `--align_model` | `JavisScore`, `AVHScore`, `AVIB`, `All`, `None` | `JavisScore` |
+| `--audio_model` | `clap`, `None` | `None` |
 
-### Stage2 - JavisDiT-prior
+**Examples:**
+```bash
+# Default (VideoReward + JavisScore)
+bash vqa_server.sh 0
 
-In this stage, we estimate the spatio-temporal synchronization prior under a contrastive learning framewrok:
+# With audio alignment (CLAP)
+CUDA_VISIBLE_DEVICES=0 python reward_model/vqa_server.py \
+    --gpu 0 --addr 5001 \
+    --reward_model VideoReward \
+    --align_model JavisScore \
+    --audio_model clap
+
+# All alignment models
+CUDA_VISIBLE_DEVICES=0 python reward_model/vqa_server.py \
+    --gpu 0 --addr 5001 \
+    --reward_model VideoReward \
+    --align_model All
+```
+
+### Step 2: Run Inference
+
+#### Option A: Standard (No ITS)
+
+Generate without inference time scaling:
 
 ```bash
-export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-torchrun --standalone --nproc_per_node 8 \
-    scripts/train_prior.py \
-    configs/javisdit-v0-1/train/stage2_prior.py \
-    --data-path data/meta/prior/train_prior.csv
+bash scripts/inference_standard.sh [GPU_ID] [NSHARD] [SHARD_ID]
+# Single GPU: bash scripts/inference_standard.sh 0
+# Multi-GPU: for i in {0..3}; do bash scripts/inference_standard.sh $i 4 $i & done; wait
 ```
 
-The resulting checkpoints will be saved at `runs/0xx-STIBPrior/epoch0yy-global_stepzzz/model`.
+**Config** (`sample_240p4s_standard.py`):
+- No ITS - pure joint audio-video generation
+- Single sample per prompt
 
-### Stage3 - JavisDiT-jav
+#### Option B: BON (Best-of-N)
 
-In this stage, we freeze the previously learned modules, and train the audio-video synchronization modules:
+Generate 5 candidates, select best:
 
 ```bash
-# link to previous stages
-mv runs/0aa-VASTDiT3-XL-2/epoch0bb-global_stepccc checkpoints/JavisDiT-v0.1-audio
-mv runs/0xx-STIBPrior/epoch0yy-global_stepzzz checkpoints/JavisDiT-v0.1-prior
-
-# start training
-export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-torchrun --standalone --nproc_per_node 8 \
-    scripts/train.py \
-    configs/javisdit-v0-1/train/stage3_jav.py \
-    --data-path data/meta/TAVGBench/train_jav.csv
+bash scripts/inference.sh [GPU_ID] [NSHARD] [SHARD_ID]
+# Single GPU: bash scripts/inference.sh 0
+# Multi-GPU: for i in {0..3}; do bash scripts/inference.sh $i 4 $i & done; wait
 ```
 
-The resulting checkpoints will be saved at `runs/0aa-VASTDiT3-XL-2/epoch0bb-global_stepccc/model`.
+**Config** (`sample_240p4s.py`):
+- `evolution_schedule=[51]` → evaluate only at end
+- `population_size_schedule=[5, 5]` → 5 candidates
+- `score_method="zscore_history"` → reward normalization
+
+#### Option C: EvoSearch
+
+Evolutionary refinement at steps 0 and 10 of denoising:
 
 ```bash
-mv runs/0aa-VASTDiT3-XL-2/epoch0bb-global_stepccc checkpoints/JavisDiT-v0.1-jav
+bash scripts/inference_evo.sh [GPU_ID] [NSHARD] [SHARD_ID]
+# Single GPU: bash scripts/inference_evo.sh 0
+# Multi-GPU: for i in {0..3}; do bash scripts/inference_evo.sh $i 4 $i & done; wait
 ```
+
+**Config** (`sample_240p4s_evo.py`):
+- `evolution_schedule=[0, 10]` → evolve at steps 0 and 10
+- `population_size_schedule=[5, 5, 5]` → 3 generations
+- `mutation_rate=0.2` → noise for diversity
+- `score_method="adaptive"` → learnable reward weights
+
+---
+
+## Configuration
+
+Both methods are configured in `configs/javisdit-v0-1/inference/sample_*.py`:
+
+**Reward Models (Verifiers):**
+```python
+stage_verifiers=[["VideoReward", "JavisScore"]]  # Change verifiers
+stage_weights=[[0.5, 0.5]]                        # Adjust combination
+```
+
+Available verifiers:
+| Verifier | Purpose | Requires |
+|----------|---------|----------|
+| `VideoReward` | Video quality metric | VideoAlign |
+| `JavisScore` | Audio-video synchronization | ImageBind |
+| `VQA` | Generic video QA scoring | CLIP + T5 |
+| `CLAP` | Audio-prompt alignment | CLAP (optional) |
+| `AVHScore` | Audio-visual harmony | ImageBind |
+| `AVIB` | Audio-visual interaction | ImageBind |
+
+Example with multiple verifiers:
+```python
+stage_verifiers=[["VideoReward", "JavisScore", "CLAP"]]
+stage_weights=[[0.4, 0.4, 0.2]]  # VideoReward 40%, JavisScore 40%, CLAP 20%
+```
+
+**Evolution:**
+```python
+evolution_schedule=[0, 10]          # When to evolve
+population_size_schedule=[5, 5, 5]  # Population per stage
+mutation_rate=0.2                   # Mutation strength
+elite_size=2                        # Keep top-K
+score_method="adaptive"             # Normalization method
+```
+
+---
 
 ## Evaluation
 
-## Installation
+For detailed evaluation instructions and metrics:
 
-Install necessary packages:
+- **JavisBench Evaluation**: https://github.com/JavisVerse/JavisDiT/blob/main/eval/javisbench/README.md
+- **VideoReward Model**: https://github.com/KlingAIResearch/VideoAlign
+- **VBench Metrics**: https://github.com/Vchitect/VBench
 
-```bash
-pip install -r requirements/requirements-eval.txt
-```
+---
 
-### Data Preparation
+## Troubleshooting
 
-Download the meta file and data of [JavisBench](https://huggingface.co/datasets/JavisDiT/JavisBench), and put them into `data/eval/`:
+| Issue | Solution |
+|-------|----------|
+| Connection refused (5001) | Ensure `vqa_server.sh` is running |
+| Out of memory | Reduce `population_size_schedule` or resolution |
+| Flash attention error | Pass `--flash-attn False --layernorm-kernel False` or edit config |
 
-```bash
-mkdir -p data/eval
-huggingface-cli download --repo-type dataset JavisDiT/JavisBench --local-dir data/eval/JavisBench
-```
-
-### Inference on JavisBench/JavisBench-mini
-
-Run the joint audio-video generation (JAVG) inference to generate sounding videos in 240P for 4 seconds:
-
-```bash
-DATASET="JavisBench"  # or JavisBench-mini
-prompt_path="data/eval/JavisBench/${DATASET}.csv"
-
-cfg_file="configs/javisdit-v0-1/inference/sample_240p4s.py"
-save_dir="samples/${DATASET}"
-
-resolution=240p
-num_frames=4s
-aspect_ratio="9:16"
-
-rm -rf ${save_dir}
-python scripts/inference.py ${cfg_file} \
-    --resolution ${resolution} --num-frames ${num_frames} --aspect-ratio ${aspect_ratio} \
-    --prompt-path ${prompt_path} --save-dir ${save_dir} --verbose 1
-
-# (Optional) Extract audios from generated videos
-python -m tools.datasets.convert video ${save_dir} --output ${save_dir}/meta.csv
-python -m tools.datasets.datautil ${save_dir}/meta.csv --extract-audio --audio-sr 16000
-rm -f ${save_dir}/meta*.csv
-```
-
-
-### Evaluation on JavisBench/JavisBench-mini
-
-Run the following code and the results will be saved in `./evaluation_results`.
-
-```bash
-MAX_FRAMES=16
-IMAGE_SIZE=224
-MAX_AUDIO_LEN_S=4.0
-
-# Params to calculate JavisScore
-WINDOW_SIZE_S=2.0
-WINDOW_OVERLAP_S=1.5
-
-METRICS="all" 
-RESULTS_DIR="./evaluation_results"
-
-DATASET="JavisBench"  # or JavisBench-mini
-INPUT_FILE="data/eval/JavisBench/${DATASET}.csv"
-FVD_AVCACHE_PATH="data/eval/JavisBench/cache/fvd_fad/${DATASET}-vanilla-max4s.pt"
-INFER_DATA_DIR="samples/${DATASET}"
-
-python -m eval.javisbench.main \
-  --input_file "${INPUT_FILE}" \
-  --infer_data_dir "${INFER_DATA_DIR}" \
-  --output_file "${RESULTS_DIR}/${DATASET}.json" \
-  --max_frames ${MAX_FRAMES} \
-  --image_size ${IMAGE_SIZE} \
-  --max_audio_len_s ${MAX_AUDIO_LEN_S} \
-  --window_size_s ${WINDOW_SIZE_S} \
-  --window_overlap_s ${WINDOW_OVERLAP_S} \
-  --fvd_avcache_path ${FVD_AVCACHE_PATH}$ \
-  --metrics ${METRICS}
-```
-
-
-## Acknowledgement
-
-Below we show our appreciation for the exceptional work and generous contribution to open source. Special thanks go to the authors of [Open-Sora](https://github.com/hpcaitech/Open-Sora) and [TAVGBench](https://github.com/OpenNLPLab/TAVGBench) for their valuable codebase and dataset. For other works and datasets, please refer to our paper.
-
-- [Open-Sora](https://github.com/hpcaitech/Open-Sora): A wonderful project for democratizing efficient text-to-video production for all, with the model, tools and all details accessible.
-- [TAVGBench](https://github.com/OpenNLPLab/TAVGBench): A large-scale dataset encompasses an impressive 1.7 million video-audio entries, each meticulously annotated with corresponding text.
-- [ColossalAI](https://github.com/hpcaitech/ColossalAI): A powerful large model parallel acceleration and optimization system.
-- [DiT](https://github.com/facebookresearch/DiT): Scalable Diffusion Models with Transformers.
-- [OpenDiT](https://github.com/NUS-HPC-AI-Lab/OpenDiT): An acceleration for DiT training. We adopt valuable acceleration strategies for training progress from OpenDiT.
-- [PixArt](https://github.com/PixArt-alpha/PixArt-alpha): An open-source DiT-based text-to-image model.
-- [Latte](https://github.com/Vchitect/Latte): An attempt to efficiently train DiT for video.
-- [StabilityAI VAE](https://huggingface.co/stabilityai/sd-vae-ft-mse-original): A powerful image VAE model.
-- [CLIP](https://github.com/openai/CLIP): A powerful text-image embedding model.
-- [T5](https://github.com/google-research/text-to-text-transfer-transformer): A powerful text encoder.
+---
 
 ## Citation
 
-If you find JavisDiT is useful and use it in your project, please kindly cite:
-
 ```bibtex
-@inproceedings{liu2025javisdit,
-      title={JavisDiT: Joint Audio-Video Diffusion Transformer with Hierarchical Spatio-Temporal Prior Synchronization}, 
-      author={Kai Liu and Wei Li and Lai Chen and Shengqiong Wu and Yanhao Zheng and Jiayi Ji and Fan Zhou and Rongxin Jiang and Jiebo Luo and Hao Fei and Tat-Seng Chua},
-      booktitle={arxiv},
-      year={2025}, 
+@article{syncinference,
+    title={Inference-Time Scaling for Joint Audio--Video Generation},
+    author={Sync, Audio-Visual}
 }
 ```
 
-<!-- ---
+---
 
-# ⭐️ Star History
+## Reference
 
-[![Star History Chart](https://api.star-history.com/svg?repos=JavisDiT/JavisDiT&type=Date)](https://star-history.com/#JavisDiT/JavisDiT&Date) -->
+- **JavisDiT**: https://github.com/JavisVerse/JavisDiT
+- **JavisBench**: https://huggingface.co/datasets/JavisDiT/JavisBench
+- **Paper**: https://arxiv.org/abs/2503.23377
 
+For questions, open an issue or visit the [JavisDiT project page](https://javisdit.github.io/).

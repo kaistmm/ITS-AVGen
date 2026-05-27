@@ -15,7 +15,7 @@ from .src.metrics import (
     calc_fvd_kvd_fad, calc_imagebind_score, 
     calc_clip_score, calc_clap_score, calc_cavp_score,
     calc_av_align,  calc_av_score,
-    calc_audio_score
+    calc_audio_score, calc_vqa_score
 )
 
 class JavisBenchCategory(object):
@@ -59,13 +59,19 @@ class JavisEvaluator(object):
         ]
         if metrics == ['all']:
             metrics = self.total_metrics
+        elif metrics == ['vggsound']:
+            metrics = ['imagebind-score', 'cxxp-score', 'av-align', 'av-score']
+        elif metrics == ['js-only']:
+            metrics = ['av-score']
         self.metrics = metrics
         self.metric2items = {
             'fvd+kvd+fad': ['fvd', 'kvd', 'fad'],
             'imagebind-score': ['ib_tv', 'ib_ta', 'ib_av'],
-            'cxxp-score': ['clip_score', 'clap_score', 'cavp_score'],
+            'cxxp-score': ['clip_score', 'clap_score'],
+            # 'cxxp-score': ['clip_score', 'clap_score', 'cavp_score'],
             'av-align': ['av_align'],
             'av-score': ['avh_score', 'javis_score'],
+            'vqa-score': ['vqa_score'],
             'audio-score': ['fad', 'ib_ta', 'clap'],
         }
 
@@ -94,7 +100,7 @@ class JavisEvaluator(object):
         # video_prompt_list = self.df.get('video_text', self.df['text']).tolist()
         video_prompt_list = prompt_list
         audio_prompt_list = self.df.get('audio_text', self.df['text']).tolist()
-
+        
         gt_video_list = self.df['path'].tolist()
         gt_audio_list = self.df.get('audio_path', self.df['path']).tolist()
 
@@ -107,6 +113,7 @@ class JavisEvaluator(object):
                 continue
             
             if metric == 'fvd+kvd+fad':
+                breakpoint()
                 mode = self.eval_kwargs.get('fvd_mode', 'vanilla')
                 eval_num = self.eval_kwargs.get('fvd_eval_num', None)
                 exist_metrics["fvd"], exist_metrics["kvd"], exist_metrics["fad"] = \
@@ -125,9 +132,9 @@ class JavisEvaluator(object):
                     exist_metrics["clip_score"] = calc_clip_score(pred_video_list, video_prompt_list, device, self.cat2indices)
                 if "clap_score" not in exist_metrics:
                     exist_metrics["clap_score"] = calc_clap_score(pred_audio_list, audio_prompt_list, device, self.cat2indices)
-                if "cavp_score" not in exist_metrics:
-                    exist_metrics["cavp_score"] = calc_cavp_score(pred_video_list, pred_audio_list, device, self.cat2indices,
-                                                                  cavp_config_path=self.eval_kwargs['cavp_config_path'])
+                # if "cavp_score" not in exist_metrics:
+                    # exist_metrics["cavp_score"] = calc_cavp_score(pred_video_list, pred_audio_list, device, self.cat2indices,
+                                                                #   cavp_config_path=self.eval_kwargs['cavp_config_path'])
                 self.write_metric(exist_metrics, metric)
             
             elif metric == 'av-align':
@@ -159,6 +166,14 @@ class JavisEvaluator(object):
                     self.df.to_csv(save_path, index=False)
                 self.write_metric(exist_metrics, metric)
             
+            elif metric == 'vqa-score':
+                if "vqa_score" not in exist_metrics:
+                    vqa_model_name = self.eval_kwargs.get('vqa_model_name', 'clip-flant5-xxl')
+                    vqa_num_frames = self.eval_kwargs.get('vqa_num_frames', 8)
+                    exist_metrics["vqa_score"] = calc_vqa_score(pred_video_list, video_prompt_list, device, self.cat2indices,
+                                                                model_name=vqa_model_name, num_frames=vqa_num_frames)
+                self.write_metric(exist_metrics, metric)
+            
             elif metric == 'audio-score':
                 audio_prompt_list = self.df['audio_text'].tolist()
                 exist_metrics["fad"], exist_metrics['ib_ta'], exist_metrics['clap'] = \
@@ -174,8 +189,25 @@ class JavisEvaluator(object):
                 score = score['overall']
             print(f'{item}: {score:.4f}', end='; ')
         print()
+        
+        # Round all numeric values to 4 decimal places before saving
+        rounded_metric = self._round_metric_values(metric)
         with open(self.output_file, 'w+') as f:
-            json.dump(metric, f, indent=4, ensure_ascii=False)
+            json.dump(rounded_metric, f, indent=4, ensure_ascii=False)
+
+    def _round_metric_values(self, metric):
+        """Round all numeric values in the metric dictionary to 4 decimal places"""
+        def round_value(value):
+            if isinstance(value, (int, float)):
+                return round(float(value), 4)
+            elif isinstance(value, dict):
+                return {k: round_value(v) for k, v in value.items()}
+            elif isinstance(value, list):
+                return [round_value(v) for v in value]
+            else:
+                return value
+        
+        return round_value(metric)
 
     def load_metric(self):
         metric = {}
@@ -191,17 +223,59 @@ class JavisEvaluator(object):
         assert osp.isdir(infer_data_dir), infer_data_dir
         audio_only = self.metrics == ['audio-score']
         sample_num = len(self.df)
+        
+        def natural_sort_key(path):
+            """Extract numeric value from filename for natural sorting"""
+            import re
+            filename = osp.basename(path)
+            # Extract number from patterns like 'sample_123.mp4' or '000123.mp4'
+            match = re.search(r'(\d+)', filename)
+            return int(match.group(1)) if match else 0
+        
         if audio_only:
-            pred_audio_list = sorted(glob(f'{infer_data_dir}/*.wav'))
+            pred_audio_list = sorted(glob(f'{infer_data_dir}/*.wav'), key=natural_sort_key)
             pred_video_list = [''] * sample_num
             assert len(pred_audio_list) == sample_num
             self.df['text'] = self.df['audio_text']
             self.df['path'] = self.df['audio_path']
         else:
-            pred_audio_list = sorted(glob(f'{infer_data_dir}/*.wav'))
-            pred_video_list = sorted(glob(f'{infer_data_dir}/*.mp4'))
-            assert len(pred_audio_list) == sample_num
-            assert len(pred_video_list) == sample_num
+            # Check if mp4 and wav folders exist
+            mp4_folder = osp.join(infer_data_dir, 'mp4')
+            wav_folder = osp.join(infer_data_dir, 'wav')
+            
+            if osp.isdir(mp4_folder) and osp.isdir(wav_folder):
+                # Standard folder structure
+                pred_audio_list = sorted(glob(f'{infer_data_dir}/wav/*.wav'), key=natural_sort_key)
+                pred_video_list = sorted(glob(f'{infer_data_dir}/mp4/*.mp4'), key=natural_sort_key)
+            else:
+                # mp4 files directly in infer_data_dir, extract audio from mp4
+                pred_video_list = sorted(glob(f'{infer_data_dir}/*.mp4'), key=natural_sort_key)
+                pred_audio_list = []
+                
+                # Create wav folder for extracted audio
+                extracted_wav_folder = osp.join(infer_data_dir, 'extracted_wav')
+                os.makedirs(extracted_wav_folder, exist_ok=True)
+                
+                import subprocess
+                for video_path in pred_video_list:
+                    video_name = osp.splitext(osp.basename(video_path))[0]
+                    audio_path = osp.join(extracted_wav_folder, f'{video_name}.wav')
+                    
+                    if not osp.exists(audio_path):
+                        # Extract audio using ffmpeg with 16kHz sample rate
+                        ffmpeg_command = [
+                            "ffmpeg", "-y",
+                            "-i", video_path,
+                            "-f", "wav",
+                            "-ar", "16000",
+                            audio_path
+                        ]
+                        subprocess.run(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    
+                    pred_audio_list.append(audio_path)
+
+            assert len(pred_audio_list) == sample_num, f"Expected {sample_num} audio files, found {len(pred_audio_list)}"
+            assert len(pred_video_list) == sample_num, f"Expected {sample_num} video files, found {len(pred_video_list)}"
 
         self.df['pred_video_path'] = pred_video_list
         self.df['pred_audio_path'] = pred_audio_list
@@ -230,6 +304,8 @@ if __name__ == '__main__':
     parser.add_argument("--window_overlap_s", type=float, default=1.5, help="JavisScore overlap size")
     parser.add_argument("--cavp_config_path", type=str, default='./eval/javisbench/configs/Stage1_CAVP.yaml', help="JavisScore overlap size")
     parser.add_argument("--save_avalign_scores", action='store_true', default=False, help="whether to return score list for AV-Align evaluation")
+    parser.add_argument("--vqa_model_name", type=str, default='clip-flant5-xxl', help="VQAScore model name (e.g., clip-flant5-xxl, llava-v1.5-7b, qwen2.5-vl-7b)")
+    parser.add_argument("--vqa_num_frames", type=int, default=8, help="number of frames to sample for VQA score calculation")
     args = parser.parse_args()
 
     cache_dir = f'{osp.dirname(args.output_file)}/cache/{osp.basename(osp.splitext(args.output_file)[0])}'

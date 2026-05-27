@@ -8,7 +8,11 @@ import warnings
 
 import torch
 import torch.nn as nn
-from mmcv.cnn import ConvModule, kaiming_init
+# from mmcv.cnn import ConvModule, kaiming_init
+# 변경
+from mmcv.cnn import ConvModule
+from mmengine.model.weight_init import kaiming_init
+
 from mmcv.runner import _load_checkpoint, load_checkpoint
 from mmcv.utils import print_log
 

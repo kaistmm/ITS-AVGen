@@ -242,12 +242,11 @@ class AVScoreDataset(Dataset):
             )
         if len(waveform.shape) == 1:
             waveform = waveform[None]  # shape(1,N)
-        
+
         video_windows, audio_clips = self.segment_clip_transform(video_frames, waveform, fps)
         video_windows_indices = torch.stack(
             [torch.arange(*video_window) for video_window in video_windows], dim=0
         )
-
         javis_inputs = {
             ModalityType.AUDIO: audio_clips,
         }
