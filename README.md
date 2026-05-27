@@ -41,7 +41,7 @@ Key advantages:
 
 ### 🎬 Supported Joint Audio-Video Generation Models
 
-1. **[JavisDiT-ITS](https://github.com/JavisVerse/JavisDiT)** ⭐ — Joint Audio-Video Diffusion Transformer
+1. **[JavisDiT-ITS](https://github.com/kaistmm/ITS-AVGen)** ⭐ — Joint Audio-Video Diffusion Transformer
    - Synchronized audio-video generation with spatio-temporal priors
 
 2. **[LTX2-ITS](https://github.com/kaistmm/ITS-AVGen-LTX2)** **— Most powerful audio-video generation model**
