@@ -7,11 +7,11 @@
 <sup>1</sup> KAIST, <sup>2</sup> Luma AI
 
 <div align="center">
-  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/Paper-OpenReview-1f72be?style=for-the-badge&logo=openreview" alt="Paper"></a>
+  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/📰-Paper-1f72be?style=for-the-badge" alt="Paper"></a>
   &nbsp;
-  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/Project-Page-50c878?style=for-the-badge" alt="Project"></a>
+  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/🚀-Project%20Page-50c878?style=for-the-badge" alt="Project"></a>
   &nbsp;
-  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/Open-Review-ff6b6b?style=for-the-badge" alt="Open Review"></a>
+  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/💻-Code-ff6b6b?style=for-the-badge" alt="Code"></a>
 </div>
 
 </div>
