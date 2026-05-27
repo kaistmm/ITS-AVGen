@@ -346,9 +346,11 @@ For detailed evaluation instructions and metrics:
 ## Citation
 
 ```bibtex
-@article{syncinference,
+@article{its2024,
     title={Inference-Time Scaling for Joint Audio--Video Generation},
-    author={Sync, Audio-Visual}
+    author={Jung, Jaemin and Rho, Kyeongha and Shin, Inkyu and Chung, Joon Son},
+    journal={Transactions on Machine Learning Research},
+    year={2024}
 }
 ```
 
