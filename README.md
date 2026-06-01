@@ -9,7 +9,7 @@
 <div align="center">
   <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/📰-Paper-1f72be?style=for-the-badge" alt="Paper"></a>
   &nbsp;
-  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/🚀-Project%20Page-50c878?style=for-the-badge" alt="Project"></a>
+  <a href="https://jung-jaemin.github.io/ITS-AVGen-Proj/"><img src="https://img.shields.io/badge/🚀-Project%20Page-50c878?style=for-the-badge" alt="Project"></a>
   &nbsp;
   <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/💻-Code-ff6b6b?style=for-the-badge" alt="Code"></a>
 </div>
