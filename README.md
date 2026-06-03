@@ -6,13 +6,9 @@
 
 <sup>1</sup> KAIST, <sup>2</sup> Luma AI
 
-<div align="center">
-  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/📰-Paper-1f72be?style=for-the-badge" alt="Paper"></a>
-  &nbsp;
-  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/🚀-Project%20Page-50c878?style=for-the-badge" alt="Project"></a>
-  &nbsp;
-  <a href="https://openreview.net/forum?id=MHNFjjm5nO"><img src="https://img.shields.io/badge/💻-Code-ff6b6b?style=for-the-badge" alt="Code"></a>
-</div>
+[![Paper](https://img.shields.io/badge/📰-Paper-1f72be?style=for-the-badge)](https://openreview.net/forum?id=MHNFjjm5nO)
+[![Project](https://img.shields.io/badge/🚀-Project%20Page-50c878?style=for-the-badge)](https://openreview.net/forum?id=MHNFjjm5nO)
+[![Code](https://img.shields.io/badge/💻-Code-ff6b6b?style=for-the-badge)](https://openreview.net/forum?id=MHNFjjm5nO)
 
 </div>
 
@@ -346,11 +342,11 @@ For detailed evaluation instructions and metrics:
 ## Citation
 
 ```bibtex
-@article{its2024,
+@article{its2026,
     title={Inference-Time Scaling for Joint Audio--Video Generation},
     author={Jung, Jaemin and Rho, Kyeongha and Shin, Inkyu and Chung, Joon Son},
     journal={Transactions on Machine Learning Research},
-    year={2024}
+    year={2026}
 }
 ```
 
