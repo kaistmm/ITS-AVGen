@@ -87,9 +87,9 @@ pip install "setuptools<81" --force-reinstall
 pip install -v -e .
 ```
 
-### Step 2: Setup Reward Server (Optional)
+### Step 2: Setup Reward Server
 
-If using VideoReward model for inference time scaling:
+We recommend creating a separate environment for reward models to use across multiple generation models (JavisDiT, LTX2, etc.). However, you can also work within a single environment if preferred:
 
 ```bash
 # Clone VideoAlign and setup environment
