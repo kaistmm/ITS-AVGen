@@ -43,10 +43,10 @@ Key advantages:
 
 ### 🎬 Supported Joint Audio-Video Generation Models
 
-1. **[JavisDiT-ITS](https://github.com/kaistmm/ITS-AVGen)** ⭐ — Joint Audio-Video Diffusion Transformer
+1. **[JavisDiT-ITS](https://github.com/kaistmm/ITS-AVGen)** ⭐ **— Joint Audio-Video Diffusion Transformer**
    - Synchronized audio-video generation with spatio-temporal priors
 
-2. **[LTX2-ITS](https://github.com/kaistmm/ITS-AVGen-LTX2)** **— Most powerful audio-video generation model**
+2. **[LTX2-ITS](https://github.com/kaistmm/ITS-AVGen-LTX2)** — Most powerful audio-video generation model
    - State-of-the-art quality and synchronization
    - Recommended for best results
    - Production-ready outputs with multiple resolution modes
@@ -262,7 +262,6 @@ bash scripts/inference.sh [GPU_ID] [NSHARD] [SHARD_ID]
 **Config** (`sample_240p4s.py`):
 - `evolution_schedule=[51]` → evaluate only at end
 - `population_size_schedule=[5, 5]` → 5 candidates
-- `score_method="zscore_history"` → reward normalization
 
 #### Option C: EvoSearch
 
@@ -314,8 +313,18 @@ evolution_schedule=[0, 10]          # When to evolve
 population_size_schedule=[5, 5, 5]  # Population per stage
 mutation_rate=0.2                   # Mutation strength
 elite_size=2                        # Keep top-K
-score_method="adaptive"             # Normalization method
+score_method="adaptive"             # Score aggregation method
 ```
+
+**Score Aggregation Methods:**
+
+| Method | Description |
+|--------|-------------|
+| `"zscore"` | Z-score normalization across all samples |
+| `"rank"` | Rank-based scoring (ordinal ranking) |
+| `"weighted"` | Weighted combination of verifier scores |
+| `"minmax"` | Min-max normalization (0-1 range) |
+| `"adaptive"` | Learnable weights via Adaptive Reward Weighting (ARW) |
 
 ---
 
@@ -327,17 +336,6 @@ For detailed evaluation instructions and metrics:
 - **VideoReward Model**: https://github.com/KlingAIResearch/VideoAlign
 - **VBench Metrics**: https://github.com/Vchitect/VBench
 
----
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Connection refused (5001) | Ensure `vqa_server.sh` is running |
-| Out of memory | Reduce `population_size_schedule` or resolution |
-| Flash attention error | Pass `--flash-attn False --layernorm-kernel False` or edit config |
-
----
 
 ## Citation
 
@@ -356,6 +354,3 @@ For detailed evaluation instructions and metrics:
 
 - **JavisDiT**: https://github.com/JavisVerse/JavisDiT
 - **JavisBench**: https://huggingface.co/datasets/JavisDiT/JavisBench
-- **Paper**: https://arxiv.org/abs/2503.23377
-
-For questions, open an issue or visit the [JavisDiT project page](https://javisdit.github.io/).

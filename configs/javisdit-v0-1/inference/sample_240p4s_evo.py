@@ -68,7 +68,7 @@ evosearch = dict(
   tournament_ratio=0.5,
 
   # Adaptive: learn optimal weight combining multiple verifiers (ARW loss)
-  # Alternative: zscore_history, zscore, rank, weighted, minmax
+  # Alternative: zscore, rank, weighted, minmax
   score_method="adaptive",
   javis_boost=0.5,
 

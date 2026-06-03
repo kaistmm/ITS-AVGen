@@ -57,9 +57,6 @@ evosearch = dict(
   vqa_weight=1.0,
   align_weight=0.0,
   tournament_ratio=0.5,
-
-  # Score normalization method: zscore_history normalizes based on historical data
-  score_method="zscore_history",
   javis_boost=0.5,
 
   # Statistics for z-score normalization (empirically measured on validation set)
