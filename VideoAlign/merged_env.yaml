@@ -1,0 +1,166 @@
+name: videoreward
+channels:
+- defaults
+dependencies:
+- python=3.11
+- pip
+- setuptools
+- wheel
+- zlib
+- numpy
+- pandas
+- matplotlib
+- readline
+- tk
+- sqlite
+- xz
+- ca-certificates
+- libffi
+- ncurses
+- openssl
+- _libgcc_mutex
+- _openmp_mutex
+- libgcc-ng
+- libgomp
+- libstdcxx-ng
+- libuuid
+- ld_impl_linux-64
+- pip:
+  - accelerate
+  - aiohttp
+  - aiosignal
+  - annotated-types
+  - appdirs
+  - asttokens
+  - async-timeout
+  - attrs
+  - bitsandbytes
+  - blobfile
+  - brotli
+  - certifi
+  - charset-normalizer
+  - click
+  - comm
+  - datasets
+  - debugpy
+  - decorator
+  - decord
+  - deepspeed
+  - diffusers==0.30.3
+  - dill
+  - docker-pycreds
+  - docstring-parser
+  - easydict
+  - einops
+  - entrypoints
+  - exceptiongroup
+  - executing
+  - filelock
+  - frozenlist
+  - fsspec
+  - ftfy
+  - gitdb
+  - gitpython
+  - gmpy2
+  - hjson
+  - huggingface-hub
+  - hydra-colorlog
+  - hydra-core
+  - idna
+  - intel-openmp
+  - ipykernel
+  - ipython
+  - jedi
+  - jinja2
+  - jupyter-client
+  - jupyter-core
+  - librosa
+  - liger-kernel
+  - markdown-it-py
+  - markupsafe
+  - matplotlib-inline
+  - mdurl
+  - mkl
+  - mkl-fft
+  - mkl-random
+  - mkl-service
+  - moviepy
+  - mpmath
+  - multidict
+  - multiprocess
+  - nest-asyncio
+  - networkx
+  - ninja
+  - nvidia-cublas-cu12
+  - nvidia-cuda-cupti-cu12
+  - nvidia-cuda-nvrtc-cu12
+  - nvidia-cuda-runtime-cu12
+  - nvidia-cudnn-cu12
+  - nvidia-cufft-cu12
+  - nvidia-curand-cu12
+  - nvidia-cusolver-cu12
+  - nvidia-cusparse-cu12
+  - nvidia-ml-py
+  - nvidia-nccl-cu12
+  - nvidia-nvjitlink-cu12
+  - nvidia-nvtx-cu12
+  - omegaconf
+  - open_clip_torch
+  - packaging
+  - peft
+  - pexpect
+  - pickleshare
+  - pillow
+  - platformdirs
+  - prompt-toolkit
+  - protobuf
+  - psutil
+  - ptyprocess
+  - pure-eval
+  - py-cpuinfo
+  - pyarrow
+  - pyarrow-hotfix
+  - pydantic
+  - pydantic-core
+  - pygments
+  - pynvml
+  - pysocks
+  - python-dateutil
+  - pytz
+  - pyyaml
+  - pyzmq
+  - regex
+  - requests
+  - rich
+  - rootutils
+  - safetensors
+  - sentencepiece
+  - sentry-sdk
+  - setproctitle
+  - shtab
+  - six
+  - smmap
+  - soundfile
+  - stack-data
+  - sympy
+  - tbb
+  - tensorboardx
+  - tokenizers
+  - torch==2.4.1
+  - torchaudio==2.4.1
+  - torchvision==0.19.1
+  - tornado
+  - tqdm
+  - traitlets
+  - transformers==4.45.2
+  - triton
+  - trl
+  - typing-extensions
+  - tyro
+  - tzdata
+  - ujson
+  - urllib3
+  - wandb
+  - wcwidth
+  - xxhash
+  - yarl
