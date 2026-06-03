@@ -22,6 +22,7 @@ st_prior_channel = 128
 
 # === Standard Inference (No ITS) ===
 # No inference time scaling - just pure generation
+evosearch = None
 
 adaptive_convergence = dict(
   enabled=True,
@@ -37,7 +38,7 @@ model = dict(
     weight_init_from=[],
     from_pretrained="./checkpoints/JavisDiT-v0.1-jav-240p4s",
     qk_norm=True,
-    enable_flash_attn=True,
+    enable_flash_attn=False,  # Set to False to avoid GLIBC compatibility issues
     enable_layernorm_kernel=False,
     # video-audio joint generation
     freeze_y_embedder=True,

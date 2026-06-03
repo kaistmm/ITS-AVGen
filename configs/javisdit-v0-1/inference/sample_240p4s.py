@@ -25,30 +25,27 @@ st_prior_channel = 128
 # evolution_schedule=[51] means evaluation happens at the last step (after full generation)
 
 evosearch = dict(
-  # When to perform evaluation: [51] = only at the end (Best-of-N strategy)
   evolution_schedule=[51],
 
-  # How many candidates to generate: [5, 5] = generate 5 samples
-  population_size_schedule=[5, 5],
+  # How many candidates to generate: [2, 2] = 2 generations with 2 samples each
+  population_size_schedule=[2, 2],
 
-  # Process samples sequentially to save memory (vs parallel generation)
-  sequential_processing=True,
+  # Process samples in batch (False) for faster inference
+  # False = batch processing (faster, more memory) - 1 forward pass per denoising step
+  # True = sequential processing (slower, less memory) - multiple forward passes per step
+  sequential_processing=False,
 
   # Don't use online guidance during generation
   guidance_reward="VideoReward",
 
   # Which reward models to use for evaluation
   stage_verifiers=[
-    ["VideoReward", "JavisScore"],  # Stage 1: Video quality + Audio-video sync
-    ["VideoReward", "JavisScore"],
-    ["VideoReward", "JavisScore"],
+    ["VideoReward", "JavisScore"],  # Gen 0: Video quality + Audio-video sync
   ],
 
   # Combine multiple verifiers with equal weight
   stage_weights=[
-    [0.5, 0.5],
-    [0.5, 0.5],
-    [0.5, 0.5],
+    [0.5, 0.5],  # Gen 0
   ],
 
   iterations=1,
@@ -58,6 +55,9 @@ evosearch = dict(
   align_weight=0.0,
   tournament_ratio=0.5,
   javis_boost=0.5,
+
+  # Score aggregation method: zscore, rank, weighted, minmax, or adaptive
+  score_method="weighted",
 
   # Statistics for z-score normalization (empirically measured on validation set)
   VQ_mean=-0.4779,
@@ -80,7 +80,7 @@ model = dict(
     weight_init_from=[],
     from_pretrained="./checkpoints/JavisDiT-v0.1-jav-240p4s",
     qk_norm=True,
-    enable_flash_attn=True,
+    enable_flash_attn=False,  # Disable for compatibility
     enable_layernorm_kernel=False,
     # video-audio joint generation
     freeze_y_embedder=True,

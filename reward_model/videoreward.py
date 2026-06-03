@@ -25,12 +25,16 @@ class VideoRewardModel:
 
     def __init__(self, cfg=None):
         self.cfg = self.Config(**cfg) if cfg else self.Config()
-        
+
+        print(f"[VideoRewardModel] Connecting to vqa_server at localhost:{self.cfg.vqa_server_addr}")
         # VQA 서버 연결 설정
         RemoteVQAManager.register("process_VideoReward")
         sam_manager = RemoteVQAManager(address=("localhost", self.cfg.vqa_server_addr), authkey=b"secret")
+        print(f"[VideoRewardModel] RemoteVQAManager created")
         sam_manager.connect()
+        print(f"[VideoRewardModel] Connected to vqa_server")
         self.vqa_function = sam_manager.process_VideoReward
+        print(f"[VideoRewardModel] process_VideoReward function bound")
 
     def _preprocess_tensor(self, data, is_audio=False):
         """텐서 데이터를 numpy로 변환하고 정규화"""

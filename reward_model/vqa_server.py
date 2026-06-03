@@ -81,6 +81,7 @@ def process_VQA(input):
 
 @torch.no_grad()
 def process_VideoReward(input):
+    global vqa_reward_model
     start_time = time.time()
     videos = input.get("videos")
     audios = input.get("audios")
@@ -92,7 +93,7 @@ def process_VideoReward(input):
         videos = torch.from_numpy(videos)
     if not isinstance(audios, torch.Tensor):
         audios = torch.from_numpy(audios)
-    
+
     videos = normalize_video_tensor_shape(videos, target_format=None, return_numpy=False).unsqueeze(0)
     videos = videos.to(vqa_reward_model.device)
     audios = audios.to(vqa_reward_model.device)
@@ -108,11 +109,18 @@ def process_VideoReward(input):
         for i in range(cur_batch_size):
             single_video = cur_videos[i]
             single_video = prepare_single_video_for_model(single_video)
-            
-            batch = vqa_reward_model.prepare_infer_batch(
-                videos=[single_video],  # [T, C, H, W]
-                prompts=[text_prompt]
-            )
+
+            # Try prepare_infer_batch, fallback to manual batch creation
+            if hasattr(vqa_reward_model, 'prepare_infer_batch'):
+                batch = vqa_reward_model.prepare_infer_batch(
+                    videos=[single_video],  # [T, C, H, W]
+                    prompts=[text_prompt]
+                )
+            else:
+                # Fallback: use _prepare_inputs directly
+                batch = vqa_reward_model._prepare_inputs({
+                    'video': single_video.unsqueeze(0) if single_video.dim() == 3 else single_video
+                })
             # batch = vqa_reward_model._prepare_inputs(batch)
             rewards = profile_metric_flops(
                 "VideoReward",
@@ -332,10 +340,16 @@ if __name__ == "__main__":
         vqa_reward_model = t2v_metrics.get_score_model(model = vqa_model, device = device)
     elif args.reward_model == "VideoReward":
         RemoteVQAManager.register("process_VideoReward", callable = process_VideoReward)
-        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+        # Ensure our JavisDiT_ITS paths are prioritized
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        if project_root not in sys.path:
+            sys.path.insert(0, project_root)
+        videoalign_path = os.path.abspath(os.path.join(project_root, "VideoAlign"))
+        if videoalign_path not in sys.path:
+            sys.path.insert(0, videoalign_path)
         from VideoAlign.inference import VideoVLMRewardInference
         print("Initializing VideoReward model...")
-        load_from_pretrained = '/home/jjm/ex/Generation/cvpr2026/MMDisCo/VideoAlign/checkpoints'
+        load_from_pretrained = './checkpoints/VideoReward'
         vqa_reward_model = VideoVLMRewardInference(load_from_pretrained, device=device, dtype=torch.bfloat16)
 
     # align_model 초기화
@@ -345,38 +359,53 @@ if __name__ == "__main__":
         from reward_model.av_align import av_align
         align_reward_model = av_align.AVAlignModel(device=device)
     elif args.align_model in ['JavisScore', 'AVHScore', 'AVIB', 'All'] or args.audio_model == 'TAIB':
-        imagebind_root = os.path.join(os.path.dirname(__file__), "src", "ImageBind")
-        imagebind_path = os.path.join(imagebind_root, "imagebind")
-        sys.path.insert(0, imagebind_root)
-        sys.path.insert(0, imagebind_path)
-        
         try:
-            import importlib.util
-            
-            data_spec = importlib.util.spec_from_file_location(
-                "data", 
-                os.path.join(imagebind_path, "data.py")
-            )
-            imagebind_data_module = importlib.util.module_from_spec(data_spec)
-            data_spec.loader.exec_module(imagebind_data_module)
-            
-            model_spec = importlib.util.spec_from_file_location(
-                "imagebind_model", 
-                os.path.join(imagebind_path, "models", "imagebind_model.py")
-            )
-            imagebind_model_module = importlib.util.module_from_spec(model_spec)
-            model_spec.loader.exec_module(imagebind_model_module)
-            
+            print("Initializing ImageBind model for JavisScore...")
+
+            # Add local ImageBind repo to path first
+            imagebind_repo = os.path.abspath("./ImageBind")
+            if imagebind_repo not in sys.path:
+                sys.path.insert(0, imagebind_repo)
+
+            # Try to import imagebind from local repo
+            try:
+                from imagebind import models
+                from imagebind.models import imagebind_model
+                from imagebind.models.imagebind_model import ModalityType
+                print("Using local ImageBind repository")
+            except ImportError:
+                # Fallback: try installed package
+                if imagebind_repo in sys.path:
+                    sys.path.remove(imagebind_repo)
+                from imagebind import models
+                from imagebind.models import imagebind_model
+                from imagebind.models.imagebind_model import ModalityType
+                print("Using installed ImageBind package")
+
+            # Create global reference for imagebind_model module
+            imagebind_model_module = imagebind_model
+
             IMAGEBIND_AVAILABLE = True
             print("Successfully imported ImageBind modules")
-            
-            print("Initializing ImageBind model for JavisScore...")
-            javis_imagebind_model = imagebind_model_module.imagebind_huge(pretrained=True)
+
+            # Load from local checkpoint if available
+            imagebind_ckpt_path = "./checkpoints/imagebind_huge.pth"
+            if os.path.exists(imagebind_ckpt_path):
+                print(f"Loading ImageBind from {imagebind_ckpt_path}")
+                javis_imagebind_model = imagebind_model.imagebind_huge(pretrained=False)
+                ckpt = torch.load(imagebind_ckpt_path, map_location=device)
+                javis_imagebind_model.load_state_dict(ckpt)
+                print(f"Loaded ImageBind from {imagebind_ckpt_path}")
+            else:
+                print("Loading ImageBind from pretrained (downloading)...")
+                javis_imagebind_model = imagebind_model.imagebind_huge(pretrained=True)
+
             javis_imagebind_model.eval()
             javis_imagebind_model.to(device)
-            
+
         except ImportError as e:
-            print(f"Error importing ImageBind: {e}")
+            print(f"Warning: Could not import ImageBind: {e}")
+            print(f"JavisScore and related models will not be available")
             IMAGEBIND_AVAILABLE = False
             sys.exit(1)
 

@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from pathlib import Path
 from pprint import pformat
@@ -198,7 +199,7 @@ def main():
     # ======================================================
     correct = cfg.get('correct', None)
     evosearch = cfg.get('evosearch', None)
-    if correct is None:
+    if correct is None or evosearch is None:
         verifier = None
         print("No verifier")
     else:
@@ -359,12 +360,16 @@ def main():
         if score_method == 'adaptive':
             from javisdit.schedulers.rf import AdaptiveRewardWeighter
             adaptive_optimizer = cfg.get("adaptive_optimizer", "RMSprop")
+            history_size = cfg.get("history_size", None)  # None = keep all, int = keep last N
             model.weighter = AdaptiveRewardWeighter(
                 lr=0.05,
-                max_iter=50,
+                max_iter=1,
                 optimizer_type=adaptive_optimizer,
+                history_size=history_size,
             ).to(device)
             logger.info("Initialized AdaptiveRewardWeighter for cross-prompt accumulation")
+            if history_size is not None:
+                logger.info(f"History size limited to {history_size} recent values")
     adaptive_convergence = cfg.get("adaptive_convergence", None)
 
     # == Iter over all samples ==

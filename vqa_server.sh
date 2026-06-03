@@ -5,6 +5,10 @@
 
 GPU_ID=${1:-0}  # Default to GPU 0 if not specified
 
+# Activate VideoReward conda environment
+source /home/jjm/anaconda3/etc/profile.d/conda.sh
+conda activate VideoReward
+
 NCCL_P2P_DISABLE=1 NCCL_IB_DISABLE=1 \
 CUDA_VISIBLE_DEVICES=${GPU_ID} python reward_model/vqa_server.py \
     --gpu 0 \

@@ -63,213 +63,137 @@ Key advantages:
 
 ---
 
-## Quick Start
+## Installation
 
-### 1. Install JavisDiT
-
-Clone this ITS repository:
+### Step 1: Setup Environment
 
 ```bash
 git clone https://github.com/JavisDiT/JavisDiT-ITS.git
 cd JavisDiT-ITS
-```
 
-Follow the [JavisDiT installation guide](https://github.com/JavisVerse/JavisDiT) first.
-
-For CUDA 12.1, you can install the dependencies with the following commands.
-
-```bash
-# create a virtual env and activate (conda as an example)
+# Create conda environment
 conda create -n javisdit_its python=3.10
 conda activate javisdit_its
 
-# install torch, torchvision and ffmpeg
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-conda install -c conda-forge ffmpeg -y
+# Install core dependencies
+conda install -c conda-forge ffmpeg cuda-toolkit=12.1 -y
+pip install -r requirements/requirements-cu121.txt
+pip install -r requirements/requirements.txt
 
-# install JavisDiT-ITS from current directory
+# Important: setuptools version for pkg_resources compatibility
+pip install "setuptools<81" --force-reinstall
+
+# Install JavisDiT-ITS
 pip install -v -e .
-pip install flash-attn --no-build-isolation
-
-# replace patched files
-PYTHON_SITE_PACKAGES=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
-cp assets/src/pytorchvideo_augmentations.py ${PYTHON_SITE_PACKAGES}/pytorchvideo/transforms/augmentations.py
-cp assets/src/funasr_utils_load_utils.py ${PYTHON_SITE_PACKAGES}/funasr/utils/load_utils.py
 ```
 
-### 2. Reward Server Environment Setup
+### Step 2: Setup Reward Server (Optional)
 
-The reward server requires additional dependencies for inference time scaling (BON or EvoSearch). 
-
-**Option A: Separate environment for reward server (recommended)**
-
-If you prefer to run the reward server in a separate GPU with isolated environment:
+If using VideoReward model for inference time scaling:
 
 ```bash
-# Create separate conda env
-conda create -n reward-server python=3.10
-conda activate reward-server
+# Clone VideoAlign and setup environment
+git clone https://github.com/KwaiVGI/VideoAlign
+cd VideoAlign
+conda env create -f environment.yaml
+conda activate VideoReward
+pip install flash-attn==2.5.8 --no-build-isolation
+cd ..
 
-# Install PyTorch (required for this env)
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# Install additional dependencies
+pip install "setuptools<81" --force-reinstall
+pip install git+https://github.com/facebookresearch/ImageBind.git
 
-# Install evaluation dependencies
-pip install -r requirements/requirements-eval.txt
-pip install imagebind-huge einops ftfy
-
-# Install VideoReward
-git clone https://github.com/KlingAIResearch/VideoAlign.git ./VideoAlign
-pip install -e ./VideoAlign
-
-# Optional: Install CLAP
-pip install transformers[audio]>=4.33.0
+# Download model checkpoints
+mkdir -p checkpoints
+cd checkpoints
+git clone https://huggingface.co/KwaiVGI/VideoReward
+wget https://dl.fbaipublicfiles.com/imagebind/imagebind_huge.pth -O imagebind_huge.pth
+cd ..
 ```
 
-Then run `bash vqa_server.sh [GPU_ID]` in this separate environment.
+### Step 3: Test Installation
 
-**Option B: Install on top of Step 1**
-
-```bash
-# Install evaluation dependencies
-pip install -r requirements/requirements-eval.txt
-
-# Reward model dependencies
-pip install imagebind-huge  # or manually download imagebind_huge.pth
-pip install einops ftfy
-
-# Install VideoReward (for --reward_model VideoReward)
-git clone https://github.com/KlingAIResearch/VideoAlign.git ./VideoAlign
-pip install -e ./VideoAlign
-
-# Install CLAP for audio alignment (optional, for --audio_model clap)
-pip install transformers[audio]>=4.33.0
-```
-
-> **Note:** PyTorch (torch, torchvision, torchaudio) is already installed from Step 1. Do not reinstall.
-
-### 3. Download Pre-trained Weights
+**Test 1: Standard Inference (No Reward Server)**
 
 ```bash
-# ImageBind (required for JavisScore)
-wget https://dl.fbaipublicfiles.com/imagebind/imagebind_huge.pth \
-    -O ./checkpoints/imagebind_huge.pth
-```
+conda activate javisdit_its
 
-Model weights (JavisDiT-v0.1-jav-240p4s, prior) auto-download on first inference.
-
-### 4. Test Installation
-
-Verify everything works with a quick test:
-
-```bash
-python scripts/inference.py \
-    configs/javisdit-v0-1/inference/sample_240p4s_standard.py \
+python scripts/inference.py configs/javisdit-v0-1/inference/sample_240p4s_standard.py \
     --prompt "a cat playing with a ball in a sunny garden" \
     --num-frames 2s --resolution 240p --aspect-ratio 9:16 \
-    --save-dir samples/test_output \
-    --verbose 2
+    --save-dir samples/test_output --verbose 2
 ```
 
-This generates a 2-second video. If successful, output will be saved in `samples/test_output/`.
+Output: Video saved in `samples/test_output/`
+
+**Test 2: With Reward Server (Optional)**
+
+If you installed the reward server (Step 2):
+
+```bash
+# Terminal 1: Start reward server
+conda activate VideoReward
+bash vqa_server.sh 0
+# Should see: "Server started... Listening for requests."
+
+# Terminal 2: Run inference with rewards
+conda activate javisdit_its
+CUDA_VISIBLE_DEVICES=1 python scripts/inference.py \
+    configs/javisdit-v0-1/inference/sample_240p4s.py \
+    --prompt "a cat playing with a ball in a sunny garden" \
+    --num-frames 2s --resolution 240p --aspect-ratio 9:16 \
+    --save-dir samples/test_output --verbose 2
+```
+
+Expected: vqa_server terminal shows reward computation logs
+
 
 ---
 
-## Inference Time Scaling
+## Usage
 
-### Step 1: Start the Reward Server
+### Standard Inference (No ITS)
 
-The reward server must run on a separate GPU:
-
-```bash
-bash vqa_server.sh [GPU_ID]
-# Example: bash vqa_server.sh 0
-```
-
-This launches VideoReward + JavisScore verifiers on port 5001. Keep this running during generation.
-
-**Server Configuration Options:**
-
-Edit `vqa_server.sh` or pass arguments directly:
+Generate without reward-based selection:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python reward_model/vqa_server.py \
-    --gpu 0 \
-    --addr 5001 \
-    --reward_model [REWARD_MODEL] \
-    --align_model [ALIGN_MODEL] \
-    --audio_model [AUDIO_MODEL]
+conda activate javisdit_its
+
+python scripts/inference.py \
+    configs/javisdit-v0-1/inference/sample_240p4s_standard.py \
+    --prompt "your prompt here" \
+    --num-frames 2s --resolution 240p --aspect-ratio 9:16 \
+    --save-dir samples/output
 ```
 
-| Option | Values | Default |
-|--------|--------|---------|
-| `--reward_model` | `VideoReward`, `vqascore` | `VideoReward` |
-| `--align_model` | `JavisScore`, `AVHScore`, `AVIB`, `All`, `None` | `JavisScore` |
-| `--audio_model` | `clap`, `None` | `None` |
+### With Reward Models (BON or EvoSearch)
 
-**Examples:**
-```bash
-# Default (VideoReward + JavisScore)
-bash vqa_server.sh 0
-
-# With audio alignment (CLAP)
-CUDA_VISIBLE_DEVICES=0 python reward_model/vqa_server.py \
-    --gpu 0 --addr 5001 \
-    --reward_model VideoReward \
-    --align_model JavisScore \
-    --audio_model clap
-
-# All alignment models
-CUDA_VISIBLE_DEVICES=0 python reward_model/vqa_server.py \
-    --gpu 0 --addr 5001 \
-    --reward_model VideoReward \
-    --align_model All
-```
-
-### Step 2: Run Inference
-
-#### Option A: Standard (No ITS)
-
-Generate without inference time scaling:
+Requires reward server running:
 
 ```bash
-bash scripts/inference_standard.sh [GPU_ID] [NSHARD] [SHARD_ID]
-# Single GPU: bash scripts/inference_standard.sh 0
-# Multi-GPU: for i in {0..3}; do bash scripts/inference_standard.sh $i 4 $i & done; wait
+# Terminal 1: Start reward server
+conda activate VideoReward
+CUDA_VISIBLE_DEVICES=0 bash vqa_server.sh 0
+
+# Terminal 2: Run inference with rewards
+conda activate javisdit_its
+CUDA_VISIBLE_DEVICES=1 python scripts/inference.py \
+    configs/javisdit-v0-1/inference/sample_240p4s.py \
+    --prompt "your prompt here" \
+    --num-frames 2s --resolution 240p --aspect-ratio 9:16 \
+    --save-dir samples/output
 ```
 
-**Config** (`sample_240p4s_standard.py`):
-- No ITS - pure joint audio-video generation
-- Single sample per prompt
+**Available configs:**
+- `sample_240p4s_standard.py` - Standard generation (no ITS)
+- `sample_240p4s.py` - BON (Best-of-N) with 2 candidates
+- `sample_240p4s_evo.py` - EvoSearch with evolutionary refinement
 
-#### Option B: BON (Best-of-N)
-
-Generate 5 candidates, select best:
-
-```bash
-bash scripts/inference.sh [GPU_ID] [NSHARD] [SHARD_ID]
-# Single GPU: bash scripts/inference.sh 0
-# Multi-GPU: for i in {0..3}; do bash scripts/inference.sh $i 4 $i & done; wait
-```
-
-**Config** (`sample_240p4s.py`):
-- `evolution_schedule=[51]` → evaluate only at end
-- `population_size_schedule=[5, 5]` → 5 candidates
-
-#### Option C: EvoSearch
-
-Evolutionary refinement at steps 0 and 10 of denoising:
-
-```bash
-bash scripts/inference_evo.sh [GPU_ID] [NSHARD] [SHARD_ID]
-# Single GPU: bash scripts/inference_evo.sh 0
-# Multi-GPU: for i in {0..3}; do bash scripts/inference_evo.sh $i 4 $i & done; wait
-```
-
-**Config** (`sample_240p4s_evo.py`):
-- `evolution_schedule=[0, 10]` → evolve at steps 0 and 10
-- `population_size_schedule=[5, 5, 5]` → 3 generations
-- `mutation_rate=0.2` → noise for diversity
-- `score_method="adaptive"` → learnable reward weights
+Edit the config files to adjust:
+- Population size and evolution schedule
+- Reward models (VideoReward, JavisScore, CLAP)
+- Adaptive reward weighting settings
 
 ---
 
@@ -301,12 +225,18 @@ stage_weights=[[0.4, 0.4, 0.2]]  # VideoReward 40%, JavisScore 40%, CLAP 20%
 
 **Evolution:**
 ```python
-evolution_schedule=[0, 10]          # When to evolve
-population_size_schedule=[5, 5, 5]  # Population per stage
-mutation_rate=0.2                   # Mutation strength
-elite_size=2                        # Keep top-K
+evolution_schedule=[0, 10]          # When to evolve (denoising steps)
+population_size_schedule=[5, 5, 5]  # Population per generation
+mutation_rate=0.2                   # Mutation strength (Gaussian noise σ)
+elite_size=2                        # Keep top-K performers
 score_method="adaptive"             # Score aggregation method
+sequential_processing=False         # False: batch processing (faster)
+                                    # True: sequential (memory efficient)
 ```
+
+**Processing Mode:**
+- `sequential_processing=False` (default): Batch process all samples in one forward pass. **Faster** but uses more VRAM.
+- `sequential_processing=True`: Process samples one-by-one sequentially. **Slower** but memory-efficient for large populations.
 
 **Score Aggregation Methods:**
 

@@ -30,11 +30,13 @@ evosearch = dict(
   # Step 10: Refinement after early denoising
   evolution_schedule=[0, 10],
 
-  # Population per generation: 5 candidates in each of 3 generations
-  population_size_schedule=[5, 5, 5],
+  # Population per generation: 2 candidates in each of 3 generations
+  population_size_schedule=[2, 2, 2],
 
-  # Process samples sequentially to save memory
-  sequential_processing=True,
+  # Process samples in batch (False) for faster evolution across 3 generations
+  # True = sequential processing saves memory but slower
+  # False = batch processing is faster for multi-generation evolution
+  sequential_processing=False,
 
   # Don't use online guidance during generation
   guidance_reward="VideoReward",
@@ -72,6 +74,12 @@ evosearch = dict(
   score_method="adaptive",
   javis_boost=0.5,
 
+  # Optional: history_size controls memory usage in adaptive reward weighting
+  # history_size=None (default): Keep all historical reward values (full history)
+  # history_size=1000: Keep only the most recent 1000 values (memory-efficient, EMA-like)
+  # Uncomment below to enable memory-efficient mode:
+  # history_size=1000,
+
   # Statistics for z-score normalization
   VQ_mean=-0.4779,
   VQ_std=0.8785,
@@ -84,7 +92,7 @@ model = dict(
     weight_init_from=[],
     from_pretrained="./checkpoints/JavisDiT-v0.1-jav-240p4s",
     qk_norm=True,
-    enable_flash_attn=True,
+    enable_flash_attn=False,
     enable_layernorm_kernel=False,
     # video-audio joint generation
     freeze_y_embedder=True,
@@ -123,7 +131,7 @@ prior_encoder = dict(
     apply_sampling=True,
     encode_va=False,
     qk_norm=True,
-    enable_flash_attn=True,
+    enable_flash_attn=False,
     enable_layernorm_kernel=False,
 )
 scheduler = dict(

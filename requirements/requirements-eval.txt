@@ -1,5 +1,8 @@
+# [reward server]
+imagebind>=1.1.0
+
 # [vbench]
-detectron2 @ git+https://github.com/facebookresearch/detectron2.git@ff53992
+# detectron2 @ git+https://github.com/facebookresearch/detectron2.git@ff53992  # Optional: install separately if needed
 imageio>=2.34.1
 pyiqa==0.1.10
 scikit-learn>=1.4.2

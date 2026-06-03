@@ -219,5 +219,4 @@ vbench2_beta_i2v
 
 
 hf_cache/
-flash-attention/
 .checkpoints/

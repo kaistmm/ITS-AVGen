@@ -1277,20 +1277,22 @@ class RFLOW:
         return torch.cat([elites_video, children_video]), torch.cat([elites_audio, children_audio])
 
 class AdaptiveRewardWeighter(nn.Module):
-    def __init__(self, reward_names=None, lr=0.01, max_iter=50, optimizer_type="Adam"):
+    def __init__(self, reward_names=None, lr=0.01, max_iter=50, optimizer_type="Adam", history_size=None):
         """
         reward_names: List of reward keys to initialize (e.g. ['VR', 'JS'])
         lr: Learning rate for internal optimization
         max_iter: Number of iterations for Test-Time Training
+        history_size: Max number of recent values to keep. None = keep all (default)
         """
         super().__init__()
         self.max_iter = max_iter
         self.lr = lr
         self.optimizer_type = optimizer_type
-        
+        self.history_size = history_size  # None = keep all, int = keep last N values
+
         # Dictionary to store log_vars for each reward type
         self.log_vars = nn.ParameterDict()
-        
+
         # History buffer: dictionary of lists
         self.history = {}
         self.online_trace = []
@@ -1380,6 +1382,11 @@ class AdaptiveRewardWeighter(nn.Module):
             if key not in self.history:
                 self.history[key] = []
             self.history[key].append(val.detach().cpu())
+
+            # Keep only last history_size values if specified
+            if self.history_size is not None and len(self.history[key]) > self.history_size:
+                # Remove oldest value to maintain size limit
+                self.history[key] = self.history[key][-self.history_size:]
             
         # 2. Prepare data for training
         current_keys = list(score_dict.keys())

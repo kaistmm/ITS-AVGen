@@ -1,3 +1,15 @@
+[build-system]
+requires = ["setuptools>=40.8.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "javisdit"
+version = "0.0.1"
+description = "Inference Time Scaling for Joint Audio-Video Generation"
+
+[tool.setuptools]
+packages = ["javisdit"]
+
 [tool.autoflake]
 remove-unused-variables = true
 remove-all-unused-imports = true

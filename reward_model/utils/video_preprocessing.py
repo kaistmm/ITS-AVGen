@@ -9,15 +9,15 @@ import sys
 import os
 from torchvision import transforms
 
-# Add ImageBind path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-imagebind_path = os.path.abspath(os.path.join(current_dir, "../../eval/javisbench/src/ImageBind"))
-if imagebind_path not in sys.path:
-    sys.path.append(imagebind_path)
-
-from imagebind import data
-from imagebind import data
-from imagebind.data import ConstantClipsPerVideoSampler, SpatialCrop
+try:
+    from imagebind import data
+    from imagebind.data import ConstantClipsPerVideoSampler, SpatialCrop
+except ImportError:
+    print(f"Warning: Could not import imagebind")
+    # Continue without imagebind - functions using it will fail gracefully
+    data = None
+    ConstantClipsPerVideoSampler = None
+    SpatialCrop = None
 from pytorchvideo import transforms as pv_transforms
 from torchvision.transforms._transforms_video import NormalizeVideo
 
