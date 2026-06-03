@@ -6,9 +6,9 @@
 
 <sup>1</sup> KAIST, <sup>2</sup> Luma AI
 
-[![Paper](https://img.shields.io/badge/📰-Paper-1f72be?style=for-the-badge)](https://openreview.net/forum?id=MHNFjjm5nO)
-[![Project](https://img.shields.io/badge/🚀-Project%20Page-50c878?style=for-the-badge)](https://openreview.net/forum?id=MHNFjjm5nO)
-[![Code](https://img.shields.io/badge/💻-Code-ff6b6b?style=for-the-badge)](https://openreview.net/forum?id=MHNFjjm5nO)
+[![Paper](https://img.shields.io/badge/📰-Paper-1f72be?style=flat)](https://openreview.net/forum?id=MHNFjjm5nO)
+[![Project](https://img.shields.io/badge/🚀-Project%20Page-50c878?style=flat)](https://openreview.net/forum?id=MHNFjjm5nO)
+[![Code](https://img.shields.io/badge/💻-Code-ff6b6b?style=flat)](https://openreview.net/forum?id=MHNFjjm5nO)
 
 </div>
 
@@ -83,23 +83,15 @@ For CUDA 12.1, you can install the dependencies with the following commands.
 conda create -n javisdit_its python=3.10
 conda activate javisdit_its
 
-# download the repo
-git clone https://github.com/JavisVerse/JavisDiT
-cd JavisDiT
-
-# install torch, torchvision and xformers
-pip install -r requirements/requirements-cu121.txt
-
-# install ffpmeg
+# install torch, torchvision and ffmpeg
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 conda install -c conda-forge ffmpeg -y
 
-# the default installation is for inference only
-pip install -v .
-# for development mode, `pip install -v -e .`
-# to skip dependencies, `pip install -v -e . --no-deps`
+# install JavisDiT-ITS from current directory
+pip install -v -e .
 pip install flash-attn --no-build-isolation
 
-# replace
+# replace patched files
 PYTHON_SITE_PACKAGES=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 cp assets/src/pytorchvideo_augmentations.py ${PYTHON_SITE_PACKAGES}/pytorchvideo/transforms/augmentations.py
 cp assets/src/funasr_utils_load_utils.py ${PYTHON_SITE_PACKAGES}/funasr/utils/load_utils.py
@@ -109,27 +101,7 @@ cp assets/src/funasr_utils_load_utils.py ${PYTHON_SITE_PACKAGES}/funasr/utils/lo
 
 The reward server requires additional dependencies for inference time scaling (BON or EvoSearch). 
 
-**Option A: Install on top of Step 1**
-
-```bash
-# Install evaluation dependencies
-pip install -r requirements/requirements-eval.txt
-
-# Reward model dependencies
-pip install imagebind-huge  # or manually download imagebind_huge.pth
-pip install einops ftfy
-
-# Install VideoReward (for --reward_model VideoReward)
-git clone https://github.com/KlingAIResearch/VideoAlign.git ./VideoAlign
-pip install -e ./VideoAlign
-
-# Install CLAP for audio alignment (optional, for --audio_model clap)
-pip install transformers[audio]>=4.33.0
-```
-
-> **Note:** PyTorch (torch, torchvision, torchaudio) is already installed from Step 1. Do not reinstall.
-
-**Option B: Separate environment for reward server (recommended)**
+**Option A: Separate environment for reward server (recommended)**
 
 If you prefer to run the reward server in a separate GPU with isolated environment:
 
@@ -154,6 +126,26 @@ pip install transformers[audio]>=4.33.0
 ```
 
 Then run `bash vqa_server.sh [GPU_ID]` in this separate environment.
+
+**Option B: Install on top of Step 1**
+
+```bash
+# Install evaluation dependencies
+pip install -r requirements/requirements-eval.txt
+
+# Reward model dependencies
+pip install imagebind-huge  # or manually download imagebind_huge.pth
+pip install einops ftfy
+
+# Install VideoReward (for --reward_model VideoReward)
+git clone https://github.com/KlingAIResearch/VideoAlign.git ./VideoAlign
+pip install -e ./VideoAlign
+
+# Install CLAP for audio alignment (optional, for --audio_model clap)
+pip install transformers[audio]>=4.33.0
+```
+
+> **Note:** PyTorch (torch, torchvision, torchaudio) is already installed from Step 1. Do not reinstall.
 
 ### 3. Download Pre-trained Weights
 
