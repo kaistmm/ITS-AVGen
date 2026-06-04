@@ -8,8 +8,8 @@
 
 <br>
 
-[![Paper](https://img.shields.io/badge/📰-Paper-1f72be?style=flat)](https://openreview.net/forum?id=MHNFjjm5nO)
-[![Project](https://img.shields.io/badge/🚀-Project%20Page-50c878?style=flat)](https://openreview.net/forum?id=MHNFjjm5nO)
+[![Paper](https://img.shields.io/badge/📰-Paper-1f72be?style=flat)](https://arxiv.org/abs/2606.03183)
+[![Project](https://img.shields.io/badge/🚀-Project%20Page-50c878?style=flat)](https://jung-jaemin.github.io/ITS-AVGen-Proj/)
 [![Code](https://img.shields.io/badge/💻-Code-ff6b6b?style=flat)](https://github.com/kaistmm/ITS-AVGen)
 
 </div>
@@ -25,22 +25,25 @@
 ## 📋 Table of Contents
 
 - [🎬 JavisDiT-ITS: Inference Time Scaling for Joint Audio-Video Generation](#-javisdit-its-inference-time-scaling-for-joint-audio-video-generation)
-  - [Overview](#-overview)
-  - [Key Features](#-key-features)
-  - [Supported Models](#-supported-models)
-  - [Getting Started](#-getting-started)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [📋 Overview](#-overview)
+  - [✨ Key Features](#-key-features)
+  - [🎬 Supported Models](#-supported-models)
+  - [🚀 Getting Started](#-getting-started)
     - [Installation](#installation)
-    - [Verification](#verification)
-  - [Usage Guide](#-usage-guide)
+      - [Step 1: Setup Environment](#step-1-setup-environment)
+      - [Step 2: Setup Reward Server](#step-2-setup-reward-server)
+      - [Step 3: Verification](#step-3-verification)
+  - [📖 Usage Guide](#-usage-guide)
     - [Standard Inference (No ITS)](#standard-inference-no-its)
     - [With Reward Models (BON or EvoSearch)](#with-reward-models-bon-or-evosearch)
-  - [Configuration](#️-configuration)
+  - [⚙️ Configuration](#️-configuration)
     - [Reward Models (Verifiers)](#reward-models-verifiers)
     - [Evolution Settings](#evolution-settings)
     - [Score Aggregation Methods](#score-aggregation-methods)
-  - [Evaluation](#-evaluation)
-  - [Citation](#-citation)
-  - [References](#-references)
+  - [📊 Evaluation](#-evaluation)
+  - [📚 Citation](#-citation)
+  - [🔗 References](#-references)
 
 ---
 
