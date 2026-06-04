@@ -16,6 +16,28 @@
 
 ---
 
+## 📋 Table of Contents
+
+- [🎬 JavisDiT-ITS: Inference Time Scaling for Joint Audio-Video Generation](#-javisdit-its-inference-time-scaling-for-joint-audio-video-generation)
+  - [Overview](#-overview)
+  - [Key Features](#-key-features)
+  - [Supported Models](#-supported-models)
+  - [Getting Started](#-getting-started)
+    - [Installation](#installation)
+    - [Verification](#verification)
+  - [Usage Guide](#-usage-guide)
+    - [Standard Inference (No ITS)](#standard-inference-no-its)
+    - [With Reward Models (BON or EvoSearch)](#with-reward-models-bon-or-evosearch)
+  - [Configuration](#️-configuration)
+    - [Reward Models (Verifiers)](#reward-models-verifiers)
+    - [Evolution Settings](#evolution-settings)
+    - [Score Aggregation Methods](#score-aggregation-methods)
+  - [Evaluation](#-evaluation)
+  - [Citation](#-citation)
+  - [References](#-references)
+
+---
+
 <p align="center">
   <img src="assets/src/7_avits.gif" width="75%" alt="JavisDiT-ITS Demo">
 </p>
