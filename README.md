@@ -92,8 +92,7 @@ pip install -v -e .
 We recommend creating a separate environment for reward models to use across multiple generation models (JavisDiT, LTX2, etc.). However, you can also work within a single environment if preferred:
 
 ```bash
-# Clone VideoAlign and setup environment
-git clone https://github.com/KwaiVGI/VideoAlign
+# Setup VideoAlign environment
 cd VideoAlign
 conda env create -f environment.yaml
 conda activate VideoReward
