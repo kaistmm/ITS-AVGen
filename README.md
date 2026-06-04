@@ -1,75 +1,81 @@
-## <div align="center">[TMLR] Inference Time Scaling for Joint Audio-Video Generation</div>
+# <div align="center">🎬 JavisDiT-ITS: Inference Time Scaling for Joint Audio-Video Generation</div>
 
 <div align="center">
 
-**[Jaemin Jung](https://jung-jaemin.github.io/)**<sup>1</sup>, [Kyeongha Rho](https://kyeongharho.github.io/)<sup>1</sup>, [Inkyu Shin](https://dlsrbgg33.github.io/)<sup>2</sup>, [Joon Son Chung](https://mm.kaist.ac.kr/joon/)<sup>1</sup>
+**[Jaemin Jung](https://jung-jaemin.github.io/)**<sup>1</sup> • [Kyeongha Rho](https://kyeongharho.github.io/)<sup>1</sup> • [Inkyu Shin](https://dlsrbgg33.github.io/)<sup>2</sup> • [Joon Son Chung](https://mm.kaist.ac.kr/joon/)<sup>1</sup>
 
-<sup>1</sup> KAIST, <sup>2</sup> Luma AI
+<sup>1</sup> [KAIST](https://www.kaist.ac.kr/) | <sup>2</sup> [Luma AI](https://lumalabs.ai/)
+
+<br>
 
 [![Paper](https://img.shields.io/badge/📰-Paper-1f72be?style=flat)](https://openreview.net/forum?id=MHNFjjm5nO)
 [![Project](https://img.shields.io/badge/🚀-Project%20Page-50c878?style=flat)](https://openreview.net/forum?id=MHNFjjm5nO)
-[![Code](https://img.shields.io/badge/💻-Code-ff6b6b?style=flat)](https://openreview.net/forum?id=MHNFjjm5nO)
+[![Code](https://img.shields.io/badge/💻-Code-ff6b6b?style=flat)](https://github.com/kaistmm/ITS-AVGen)
 
 </div>
 
 ---
 
 <p align="center">
-  <img src="assets/src/7_avits.gif" width="70%">
+  <img src="assets/src/7_avits.gif" width="75%" alt="JavisDiT-ITS Demo">
 </p>
 
 ---
 
-## Brief Introduction
+## 📋 Overview
 
 <p align="center">
   <a href="assets/src/main.pdf" target="_blank">
-    <img src="assets/src/main.png" width="80%">
+    <img src="assets/src/main.png" width="85%" alt="JavisDiT-ITS Architecture">
   </a>
 </p>
 
-**Inference Time Scaling (ITS)** extends generation quality without retraining by leveraging pre-trained reward models at inference time. 
+**Inference Time Scaling (ITS)** extends generation quality without retraining by leveraging pre-trained reward models at inference time.
 
-Rather than generating a single sample through the diffusion process, ITS generates a population of diverse candidates and uses reward signals (video quality, audio-video synchronization, etc.) to iteratively refine them. This approach enables:
+Rather than generating a single sample through the diffusion process, ITS generates a population of diverse candidates and uses reward signals (video quality, audio-video synchronization, etc.) to iteratively refine them.
 
-- **BON (Best-of-N)**: Generate N samples and select the best one using reward ranking
-- **EvoSearch**: Evolutionary refinement through multiple denoising stages with selection and mutation
-
-Key advantages:
-- ✅ No additional training required
-- ✅ Works with any pre-trained generative model  
-- ✅ Flexible reward combinations (VideoReward, JavisScore, CLAP, etc.)
-- ✅ Significant quality improvements (up to +34% on sync metrics)
-
-### 🎬 Supported Joint Audio-Video Generation Models
-
-1. **[JavisDiT-ITS](https://github.com/kaistmm/ITS-AVGen)** ⭐ **— Joint Audio-Video Diffusion Transformer**
-   - Synchronized audio-video generation with spatio-temporal priors
-
-2. **[LTX2-ITS](https://github.com/kaistmm/ITS-AVGen-LTX2)** — Most powerful audio-video generation model
-   - State-of-the-art quality and synchronization
-   - Recommended for best results
-   - Production-ready outputs with multiple resolution modes
-   - **Currently implemented:** BON (Best-of-N)
-   - **Coming soon:** EvoSearch (Evolutionary Search)
-
-3. **[MMDisCo-ITS](https://github.com/SonyResearch/MMDisCo)** — Cooperative Diffusion for Joint Audio-Video Generation (TBD)
-   - Discriminator-guided multimodal generation
-   - *Code will be released soon*
+**How it works:**
+1. Generate diverse candidates through diffusion
+2. Score each candidate using reward signals
+3. Iteratively refine the best candidates
+4. Return the highest-quality sample
 
 ---
 
-> For JavisDiT base model details, installation, and pre-training, refer to the [JavisDiT repository](https://github.com/JavisVerse/JavisDiT).
+## ✨ Key Features
+
+| Feature | Description |
+|---------|-------------|
+| 🚀 **No Retraining** | Works with any pre-trained JavisDiT model out-of-the-box |
+| 🎯 **BON (Best-of-N)** | Generate N candidates and select the best using reward ranking |
+| 🧬 **EvoSearch** | Evolutionary refinement through multiple denoising stages |
+| 📊 **Multi-Reward** | Combine VideoReward, JavisScore, CLAP, and more |
+| 🔧 **Flexible Config** | Fine-tune all parameters via Python configuration |
+| 💾 **Memory Efficient** | Sequential processing modes for large populations |
 
 ---
 
-## Installation
+## 🎬 Supported Models
 
-### Step 1: Setup Environment
+| Model | Type | Features |
+|-------|------|----------|
+| **[JavisDiT-ITS](https://github.com/kaistmm/ITS-AVGen)** ⭐ | Joint Audio-Video DiT | Synchronized generation with spatio-temporal priors |
+| **[LTX2-ITS](https://github.com/kaistmm/ITS-AVGen-LTX2)** | Most Powerful | SOTA quality & synchronization, production-ready |
+| **[MMDisCo-ITS](https://github.com/SonyResearch/MMDisCo)** | Coming Soon | Discriminator-guided multimodal generation |
+
+> 📖 For JavisDiT base model details, refer to [JavisDiT repository](https://github.com/JavisVerse/JavisDiT).
+
+---
+
+## 🚀 Getting Started
+
+### Installation
+
+#### Step 1: Setup Environment
 
 ```bash
-git clone https://github.com/JavisDiT/JavisDiT-ITS.git
-cd JavisDiT-ITS
+git clone https://github.com/kaistmm/ITS-AVGen.git
+cd ITS-AVGen
 
 # Create conda environment
 conda create -n javisdit_its python=3.10
@@ -87,9 +93,9 @@ pip install "setuptools<81" --force-reinstall
 pip install -v -e .
 ```
 
-### Step 2: Setup Reward Server
+#### Step 2: Setup Reward Server
 
-We recommend creating a separate environment for reward models to use across multiple generation models (JavisDiT, LTX2, etc.). However, you can also work within a single environment if preferred:
+We recommend creating a separate environment for reward models to use across multiple generation models (JavisDiT, LTX2, etc.). However, you can also work within a single environment if preferred.
 
 ```bash
 # Setup VideoAlign environment
@@ -111,46 +117,29 @@ wget https://dl.fbaipublicfiles.com/imagebind/imagebind_huge.pth -O imagebind_hu
 cd ..
 ```
 
-### Step 3: Test Installation
+#### Step 3: Verification
 
-**Test 1: Standard Inference (No Reward Server)**
+Test your installation:
 
 ```bash
-conda activate javisdit_its
+# Terminal 1: Start reward server (if using ITS)
+conda activate VideoReward
+bash vqa_server.sh 0
+# ✓ Should output: "Server started... Listening for requests."
 
+# Terminal 2: Run test inference
+conda activate javisdit_its
 python scripts/inference.py configs/javisdit-v0-1/inference/sample_240p4s_standard.py \
     --prompt "a cat playing with a ball in a sunny garden" \
     --num-frames 2s --resolution 240p --aspect-ratio 9:16 \
     --save-dir samples/test_output --verbose 2
 ```
 
-Output: Video saved in `samples/test_output/`
-
-**Test 2: With Reward Server (Optional)**
-
-If you installed the reward server (Step 2):
-
-```bash
-# Terminal 1: Start reward server
-conda activate VideoReward
-bash vqa_server.sh 0
-# Should see: "Server started... Listening for requests."
-
-# Terminal 2: Run inference with rewards
-conda activate javisdit_its
-CUDA_VISIBLE_DEVICES=1 python scripts/inference.py \
-    configs/javisdit-v0-1/inference/sample_240p4s.py \
-    --prompt "a cat playing with a ball in a sunny garden" \
-    --num-frames 2s --resolution 240p --aspect-ratio 9:16 \
-    --save-dir samples/test_output --verbose 2
-```
-
-Expected: vqa_server terminal shows reward computation logs
-
+✅ If both complete successfully, installation is complete!
 
 ---
 
-## Usage
+## 📖 Usage Guide
 
 ### Standard Inference (No ITS)
 
@@ -189,24 +178,21 @@ CUDA_VISIBLE_DEVICES=1 python scripts/inference.py \
 - `sample_240p4s.py` - BON (Best-of-N) with 2 candidates
 - `sample_240p4s_evo.py` - EvoSearch with evolutionary refinement
 
-Edit the config files to adjust:
-- Population size and evolution schedule
-- Reward models (VideoReward, JavisScore, CLAP)
-- Adaptive reward weighting settings
-
 ---
 
-## Configuration
+## ⚙️ Configuration
 
 Both methods are configured in `configs/javisdit-v0-1/inference/sample_*.py`:
 
-**Reward Models (Verifiers):**
+### Reward Models (Verifiers)
+
 ```python
 stage_verifiers=[["VideoReward", "JavisScore"]]  # Change verifiers
 stage_weights=[[0.5, 0.5]]                        # Adjust combination
 ```
 
-Available verifiers:
+**Available verifiers:**
+
 | Verifier | Purpose | Requires |
 |----------|---------|----------|
 | `VideoReward` | Video quality metric | VideoAlign |
@@ -216,13 +202,15 @@ Available verifiers:
 | `AVHScore` | Audio-visual harmony | ImageBind |
 | `AVIB` | Audio-visual interaction | ImageBind |
 
-Example with multiple verifiers:
+**Example with multiple verifiers:**
+
 ```python
 stage_verifiers=[["VideoReward", "JavisScore", "CLAP"]]
 stage_weights=[[0.4, 0.4, 0.2]]  # VideoReward 40%, JavisScore 40%, CLAP 20%
 ```
 
-**Evolution:**
+### Evolution Settings
+
 ```python
 evolution_schedule=[0, 10]          # When to evolve (denoising steps)
 population_size_schedule=[5, 5, 5]  # Population per generation
@@ -234,22 +222,22 @@ sequential_processing=False         # False: batch processing (faster)
 ```
 
 **Processing Mode:**
-- `sequential_processing=False` (default): Batch process all samples in one forward pass. **Faster** but uses more VRAM.
-- `sequential_processing=True`: Process samples one-by-one sequentially. **Slower** but memory-efficient for large populations.
+- `sequential_processing=False` (default): Batch process all samples. **Faster** but uses more VRAM.
+- `sequential_processing=True`: Process samples one-by-one. **Slower** but memory-efficient.
 
-**Score Aggregation Methods:**
+### Score Aggregation Methods
 
-| Method | Description |
-|--------|-------------|
-| `"zscore"` | Z-score normalization across all samples |
-| `"rank"` | Rank-based scoring (ordinal ranking) |
-| `"weighted"` | Weighted combination of verifier scores |
-| `"minmax"` | Min-max normalization (0-1 range) |
-| `"adaptive"` | Learnable weights via Adaptive Reward Weighting (ARW) |
+| Method | Description | Use Case |
+|--------|-------------|----------|
+| `"zscore"` | Z-score normalization across all samples | Robust scaling |
+| `"rank"` | Rank-based scoring (ordinal ranking) | Robust to outliers |
+| `"weighted"` | Weighted combination of verifier scores | Simple linear blend |
+| `"minmax"` | Min-max normalization (0-1 range) | Normalized values |
+| `"adaptive"` | Learnable weights via Adaptive Reward Weighting (ARW) | Auto-optimized ⭐ |
 
 ---
 
-## Evaluation
+## 📊 Evaluation
 
 For detailed evaluation instructions and metrics:
 
@@ -257,8 +245,11 @@ For detailed evaluation instructions and metrics:
 - **VideoReward Model**: https://github.com/KlingAIResearch/VideoAlign
 - **VBench Metrics**: https://github.com/Vchitect/VBench
 
+---
 
-## Citation
+## 📚 Citation
+
+If you find this work useful, please cite:
 
 ```bibtex
 @article{its2026,
@@ -271,7 +262,9 @@ For detailed evaluation instructions and metrics:
 
 ---
 
-## Reference
+## 🔗 References
 
-- **JavisDiT**: https://github.com/JavisVerse/JavisDiT
-- **JavisBench**: https://huggingface.co/datasets/JavisDiT/JavisBench
+- **[JavisDiT](https://github.com/JavisVerse/JavisDiT)** - Base model repository
+- **[JavisBench](https://huggingface.co/datasets/JavisDiT/JavisBench)** - Evaluation benchmark
+- **[LTX2-ITS](https://github.com/kaistmm/ITS-AVGen-LTX2)** - LTX-2 variant with better quality
+- **[VideoReward](https://github.com/KlingAIResearch/VideoAlign)** - Quality assessment model
