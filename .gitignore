@@ -218,5 +218,5 @@ vbench
 vbench2_beta_i2v
 
 
-hf_cache/
-.checkpoints/
+hf_cache
+.checkpoints
