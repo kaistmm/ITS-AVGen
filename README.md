@@ -16,6 +16,12 @@
 
 ---
 
+<p align="center">
+  <img src="assets/src/7_avits.gif" width="75%" alt="JavisDiT-ITS Demo">
+</p>
+
+---
+
 ## 📋 Table of Contents
 
 - [🎬 JavisDiT-ITS: Inference Time Scaling for Joint Audio-Video Generation](#-javisdit-its-inference-time-scaling-for-joint-audio-video-generation)
@@ -35,12 +41,6 @@
   - [Evaluation](#-evaluation)
   - [Citation](#-citation)
   - [References](#-references)
-
----
-
-<p align="center">
-  <img src="assets/src/7_avits.gif" width="75%" alt="JavisDiT-ITS Demo">
-</p>
 
 ---
 
